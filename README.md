@@ -1,1 +1,1 @@
-# ProfileEditor
+# ProfileEditorApp
