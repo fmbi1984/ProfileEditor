@@ -33,11 +33,11 @@ void MainWindow::on_actionNuevo_triggered()
     QTreeWidget * tree = ui->treeWidget;
 
     QTreeWidgetItem * topLevel = new QTreeWidgetItem();
-    topLevel->setText(0, "123-SGL");
+    topLevel->setText(0, "124-SGL");
 
     tree->addTopLevelItem(topLevel);
 
-    programData.append({"123-SGL","Carga,15,5,-"});
+    programData.append({"124-SGL","Carga,15,5,-"});
 }
 
 void MainWindow::on_actionGuardar_triggered()
