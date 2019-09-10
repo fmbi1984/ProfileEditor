@@ -37,12 +37,13 @@ void MainWindow::on_actionNuevo_triggered()
 
     tree->addTopLevelItem(topLevel);
 
-    programData.append({"124-SGL","Carga,15,5,-"});
+    programData.append({"124-SGL","-,-,-,-"});
 }
 
 void MainWindow::on_actionGuardar_triggered()
 {
     qDebug()<<"Guardar";
+    saveTable();
     saveSettings();
 }
 
@@ -61,7 +62,6 @@ void MainWindow::on_actionBorrar_triggered()
      ui->tableWidget->clear();
      ui->treeWidget->takeTopLevelItem(this->m_cProgramIndex);
      //populateTable(this->m_cProgramIndex);
-
 }
 
 void MainWindow::on_actionCancelar_triggered()
@@ -93,6 +93,7 @@ void MainWindow::on_actionSalir_triggered()
 
 void MainWindow::saveSettings()
 {
+     qDebug()<<"saveSettings";
      qRegisterMetaTypeStreamOperators<QList<QStringList>>("Stuff");
 
      QSettings settings("archivo.ini", QSettings::NativeFormat);
@@ -104,6 +105,8 @@ void MainWindow::saveSettings()
 
 void MainWindow::loadSettings()
 {
+    qDebug()<<"loadSettings";
+
     qRegisterMetaTypeStreamOperators<QList<QStringList>>("Stuff");
     QSettings settings("archivo.ini", QSettings::NativeFormat);
     QList<QStringList> myList = settings.value("programData").value<QList<QStringList> >();
@@ -112,8 +115,10 @@ void MainWindow::loadSettings()
 
 void MainWindow::populateTree()
 {
+    qDebug()<<"populateTree";
     for (const auto& i : programData)
     {
+       qDebug()<<"i";
        qDebug() << i;
        QTreeWidgetItem * topLevel = new QTreeWidgetItem();
        topLevel->setText(0,QVariant(i[0]).toString());
@@ -123,6 +128,7 @@ void MainWindow::populateTree()
 
 void MainWindow::populateTable(int pgmIdx)
 {
+    qDebug()<<"populateTable";
     ui->tableWidget->setRowCount(programData[pgmIdx].count()-1);
     for(int nstep=0;nstep<programData[pgmIdx].count()-1;nstep++)
     {
@@ -139,6 +145,64 @@ void MainWindow::populateTable(int pgmIdx)
     }
 }
 
+void MainWindow::jsonTable()
+{
+    //Modo operacion,valor nominal, termino, stand-by
+
+    qDebug()<<programData.size();
+
+    for (int j=1;j<programData.size();++j) {
+        QStringList list1 = {programData[0][j]};
+        //QStringList list1 = {"Carga,15,5,-"};
+        qDebug()<<"list1";
+        qDebug()<<list1;
+
+        QStringList list3;
+
+        QString temp0;
+        QString temp1;
+        QString temp2;
+        QString temp3;
+        QString stepCount[list1.size()];
+
+        for (int i = 0; i < list1.size(); ++i){
+            QString list2 = list1.at(i).toLocal8Bit().constData();
+            for(int x = 0; x < 4; ++x)
+            {
+                list3 = list2.split(',');
+                temp0 = list3[0];
+                temp1 = list3[1];
+                temp2 = list3[2];
+                temp3 = list3[3];
+            }
+
+            if(temp0 == "Carga") {
+                stepCount[i] = {"{Type:"+temp0+",Current:"+temp1+",Time:"+temp2+",Temp:"+temp3+"}"};
+                stepCount[i].replace("-","0.0");
+                qDebug()<<"stepCount0";
+                qDebug()<<stepCount[i];
+            }
+            else {
+                stepCount[i] = {"{Type:"+temp0+",Time:"+temp2+"}"};
+                qDebug()<<"stepCount1";
+                qDebug()<<stepCount[i];
+
+                /*QTableWidgetItem *item = new QTableWidgetItem("-");
+                item->setFlags(item->flags() & ~Qt::ItemIsEditable); //non editable
+                ui->tableWidget->setItem(0,1,item);*/
+            }
+        }
+
+        //qDebug()<<"[{Type:Begin},";
+        //for (int j=0;j<list1.size();++j) {
+            //QStringList stepTotal = {"[{Type:Begin},"+stepCount[0]+","+stepCount[1]+","+stepCount[2]+",{Type:End}]"};
+            //QStringList stepTotal = {"[{Type:Begin},"+stepCount[0]+",{Type:End}]"};
+            //QStringList stepTotal = {","+stepCount[j]+","};
+            //qDebug()<<stepTotal;
+        //}
+        //qDebug()<<"[{Type:End}]";
+    }
+}
 void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
 {
     Q_UNUSED(item);
@@ -166,7 +230,7 @@ void MainWindow::on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTre
 void MainWindow::on_pushButton_clicked()
 {
     qDebug()<<"Agregar";
-    programData[this->m_cProgramIndex].append("Carga,15,5,-");
+    programData[this->m_cProgramIndex].append("-,-,-,-");
     ui->tableWidget->setRowCount(programData[0].count()-1);
 
     populateTable(this->m_cProgramIndex);
@@ -184,6 +248,7 @@ void MainWindow::on_pushButton_2_clicked()
 void MainWindow::showEvent(QShowEvent *ev)
 {
     Q_UNUSED(ev);
+    qDebug()<<"showEvent";
 
     loadSettings();
     populateTree();
@@ -220,20 +285,11 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     ui->tableWidget->setGeometry(tableWidgetLeftMargin+ui->treeWidget->width()+tableWidgetRightMargin, tableWidgetTopMargin, MainWindow::width()-ui->treeWidget->width()-15, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
 }
 
-/*void MainWindow::on_tableWidget_doubleClicked(const QModelIndex &index)
+void MainWindow::on_tableWidget_doubleClicked(const QModelIndex &index)
 {
     Q_UNUSED(index);
     qDebug()<<"double click";
-
-    ComboBoxDelegate* cbid = new ComboBoxDelegate();
-    ui->tableWidget->setItemDelegateForColumn(0,cbid);
-
-    //ui->tableWidget->itemDelegate();
-
-
-    //qDebug()<<t;
-    //programData[m_cProgramIndex][0] = y;
-}*/
+}
 
 void MainWindow::on_tableWidget_viewportEntered()
 {
@@ -272,8 +328,11 @@ void MainWindow::on_tableWidget_itemChanged(QTableWidgetItem *item)
 {
     qDebug()<<"tableWidget item";
 
-    ComboBoxDelegate* cbid = new ComboBoxDelegate();
-    ui->tableWidget->setItemDelegateForColumn(0,cbid);
+   /* for (int i = 0;i<4;++i) {
+        QTableWidgetItem *itab = ui->tableWidget->item(0,i);
+        QString itabtext = itab->text();
+        qDebug()<<itabtext;
+    }*/
 
     //ui->tableWidget->item(0,0);
     //cbid->item
@@ -283,4 +342,44 @@ void MainWindow::on_tableWidget_itemChanged(QTableWidgetItem *item)
     //qDebug()<<y;
     //qDebug()<< programData[m_cProgramIndex][1];
     //programData[m_cProgramIndex][0] = y;
+}
+
+void MainWindow::saveTable()
+{
+    qDebug()<<"saveTable";
+    QString itabtext[4];
+
+    //qDebug()<<programData[m_cProgramIndex].count()-1;
+
+    for (int j = 0;j<programData[m_cProgramIndex].count()-1;++j) {
+        for (int i = 0;i<4;++i) {
+            QTableWidgetItem *itab = ui->tableWidget->item(j,i);
+            //ui->tableWidget->
+            itabtext[i] = itab->text();
+            //qDebug()<<itabtext[i];
+        }
+        QString text={itabtext[0]+","+itabtext[1]+","+itabtext[2]+","+itabtext[3]};
+        qDebug()<<"text";
+        qDebug()<<text;
+
+        qDebug()<<m_cProgramIndex;
+
+        programData[m_cProgramIndex][j+1] = text;
+
+        //programData.append({"124-SGL",text});
+        qDebug()<<programData[m_cProgramIndex][j+1];
+    }
+}
+
+
+//[{"Type": "Begin"}, {"Type": "Pause", "Time": "25000"}, {"Type": "Charge", "Time": "30000", "Current": "30.0"}, {"Type": "Charge", "Time": "1800000", "Current": "27.4", "Maxtemp": "31.0", "Mintemp": "20.0"}, {"Type": "Charge", "Time": "1200000", "Current": "18.6", "Maxtemp": "31.0", "Mintemp": "20.5"}, {"Type": "Pause", "Time": "180000"}, {"Type": "Charge", "Time": "1200000", "Current": "9.0"}, {"Type": "Pause", "Time": "60000"}, {"Type": "Charge", "Time": "900000", "Current": "12.4", "Maxtemp": "29.0", "Mintemp": "20.1"}, {"Type": "Charge", "Time": "1200000", "Current": "8.2", "Maxtemp": "30.3", "Mintemp": "20.0"}, {"Type": "Charge", "Time": "1500000", "Current": "25.6", "Maxtemp": "30.3", "Mintemp": "20.0"}, {"Type": "Pause", "Time": "180000"}, {"Type": "Charge", "Time": "1200000", "Current": "17.6"}, {"Type": "End"}]
+
+
+
+void MainWindow::on_tableWidget_itemDoubleClicked(QTableWidgetItem *item)
+{
+    qDebug()<<"edit itemTable";
+
+    ComboBoxDelegate* cbid = new ComboBoxDelegate();
+    ui->tableWidget->setItemDelegateForColumn(0,cbid);
 }

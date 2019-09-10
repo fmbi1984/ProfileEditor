@@ -13,6 +13,9 @@
 #include <QDir>
 #include <QTreeWidget>
 #include "comboboxdelegate.h"
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
 
 namespace Ui {
 class MainWindow;
@@ -37,6 +40,9 @@ private slots:
     void saveSettings();
     void loadSettings();
 
+    void jsonTable();
+    void saveTable();
+
     void populateTree();
     void populateTable(int pgmIdx);
 
@@ -46,7 +52,7 @@ private slots:
     void on_pushButton_clicked();
     void on_pushButton_2_clicked();
 
-    //void on_tableWidget_doubleClicked(const QModelIndex &index);
+    void on_tableWidget_doubleClicked(const QModelIndex &index);
 
     void on_tableWidget_viewportEntered();
 
@@ -57,6 +63,8 @@ private slots:
     //void on_tableWidget_cellChanged(int row, int column);
 
     void on_tableWidget_itemChanged(QTableWidgetItem *item);
+
+    void on_tableWidget_itemDoubleClicked(QTableWidgetItem *item);
 
 private:
     Ui::MainWindow *ui;

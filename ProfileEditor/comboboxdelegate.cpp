@@ -36,9 +36,9 @@ void ComboBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
     if (cbIndex >= 0)
       cb->setCurrentIndex(cbIndex);
 
-    qDebug()<<"currentText";
-    qDebug()<<currentText;
-    qDebug()<<"setEditor";
+    //qDebug()<<"currentText";
+    //qDebug()<<currentText;
+    //qDebug()<<"setEditor";
 }
 
 
