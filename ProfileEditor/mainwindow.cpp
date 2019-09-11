@@ -376,13 +376,23 @@ void MainWindow::on_tableWidget_itemDoubleClicked(QTableWidgetItem *item)
     ComboBoxDelegate* cbid = new ComboBoxDelegate();
     ui->tableWidget->setItemDelegateForColumn(0,cbid);
 
-    //cbid->
-
-    QColor colorLive(Qt::lightGray);
+    qDebug()<<"text";
+    QTableWidgetItem *itab = ui->tableWidget->item(0,0);
+    QString itabtext = itab->text();
+    qDebug()<<itabtext;
 
     item = new QTableWidgetItem("-");
-    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-    ui->tableWidget->setItem(programData[m_cProgramIndex].count()-2,1,item);
-    ui->tableWidget->item(programData[m_cProgramIndex].count()-2,1)->setBackgroundColor(colorLive);
 
+    if(itabtext == "Carga"){
+        QColor colorLive(Qt::white);
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
+        ui->tableWidget->setItem(programData[m_cProgramIndex].count()-2,1,item);
+        ui->tableWidget->item(programData[m_cProgramIndex].count()-2,1)->setBackgroundColor(colorLive);
+    }
+    else {
+        QColor colorLive(Qt::lightGray);
+        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+        ui->tableWidget->setItem(programData[m_cProgramIndex].count()-2,1,item);
+        ui->tableWidget->item(programData[m_cProgramIndex].count()-2,1)->setBackgroundColor(colorLive);
+    }
 }
