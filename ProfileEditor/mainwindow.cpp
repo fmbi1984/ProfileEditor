@@ -281,7 +281,6 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     int bothControlsHeight = statusBarHeight + mainToolbarHeight;
 
     ui->treeWidget->setGeometry(treeWidgetLeftMargin, treeWidgetTopMargin, treeWidgetWidth, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
-
     ui->tableWidget->setGeometry(tableWidgetLeftMargin+ui->treeWidget->width()+tableWidgetRightMargin, tableWidgetTopMargin, MainWindow::width()-ui->treeWidget->width()-15, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
 }
 
@@ -311,7 +310,7 @@ void MainWindow::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
     programData[m_cProgramIndex][0] = d;
 }
 
-/*
+
 void MainWindow::on_tableWidget_cellChanged(int row, int column)
 {
     qDebug()<<"cell changed";
@@ -322,17 +321,11 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
     qDebug()<<query;
     programData[m_cProgramIndex][row+1] = query[0]+","+query[1]+","+query[2]+","+query[3];
 }
-*/
+
 
 void MainWindow::on_tableWidget_itemChanged(QTableWidgetItem *item)
 {
     qDebug()<<"tableWidget item";
-
-   /* for (int i = 0;i<4;++i) {
-        QTableWidgetItem *itab = ui->tableWidget->item(0,i);
-        QString itabtext = itab->text();
-        qDebug()<<itabtext;
-    }*/
 
     //ui->tableWidget->item(0,0);
     //cbid->item
@@ -382,4 +375,14 @@ void MainWindow::on_tableWidget_itemDoubleClicked(QTableWidgetItem *item)
 
     ComboBoxDelegate* cbid = new ComboBoxDelegate();
     ui->tableWidget->setItemDelegateForColumn(0,cbid);
+
+    //cbid->
+
+    QColor colorLive(Qt::lightGray);
+
+    item = new QTableWidgetItem("-");
+    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+    ui->tableWidget->setItem(programData[m_cProgramIndex].count()-2,1,item);
+    ui->tableWidget->item(programData[m_cProgramIndex].count()-2,1)->setBackgroundColor(colorLive);
+
 }

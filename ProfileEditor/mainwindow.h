@@ -3,11 +3,11 @@
 
 #include <QMainWindow>
 #include <QTableWidgetItem>
+#include <QTabWidget>
 #include <QSettings>
 #include <QDebug>
 #include <QStringList>
 
-//#include <QComboBox>
 #include <QMessageBox>
 #include <QStandardItemModel>
 #include <QDir>
@@ -60,7 +60,7 @@ private slots:
 
     void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
 
-    //void on_tableWidget_cellChanged(int row, int column);
+    void on_tableWidget_cellChanged(int row, int column);
 
     void on_tableWidget_itemChanged(QTableWidgetItem *item);
 

@@ -36,6 +36,11 @@ void ComboBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
     if (cbIndex >= 0)
       cb->setCurrentIndex(cbIndex);
 
+    if(currentText=="Carga"){
+        qDebug()<<"habilita";
+    }
+    else {
+    }
     //qDebug()<<"currentText";
     //qDebug()<<currentText;
     //qDebug()<<"setEditor";

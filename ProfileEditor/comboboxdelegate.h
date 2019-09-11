@@ -3,6 +3,8 @@
 
 #include <QComboBox>
 #include <QStyledItemDelegate>
+#include <QTableWidgetItem>
+#include <QTableWidget>
 #include <QDebug>
 
 class ComboBoxDelegate : public QStyledItemDelegate
