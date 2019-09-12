@@ -12,8 +12,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->tableWidget->setColumnCount(4);
 
-    QStringList tableTitles({"Modo Operación", "Valor Nominal", "Termino", "Stand-By"});
+    QStringList tableTitles({"Modo Operación","Valor Nominal","Termino","Stand-By"});
     ui->tableWidget->setHorizontalHeaderLabels(tableTitles);
+
+    //ui->tableWidget->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
 
     QString treeTitle = "Programa";
     ui->treeWidget->setHeaderLabel(treeTitle);
@@ -212,19 +214,11 @@ void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
 
     try {
         this->m_cProgramIndex = ui->treeWidget->currentIndex().row();
-        qDebug()<<this->m_cProgramIndex;
+        qDebug()<<"indice"<<this->m_cProgramIndex;
         populateTable(this->m_cProgramIndex);
     } catch(...) {
         //ui->tableWidget->clear();
     }
-}
-
-void MainWindow::on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
-{
-    Q_UNUSED(current);
-    Q_UNUSED(previous);
-
-    qDebug()<<"Item Changed";
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -239,9 +233,9 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::on_pushButton_2_clicked()
 {
     qDebug()<<"Eliminar";
-    programData[0].removeLast();
-    ui->tableWidget->setRowCount(programData[0].count()-1);
 
+    programData[this->m_cProgramIndex].removeLast();
+    ui->tableWidget->setRowCount(programData[0].count()-1);
     populateTable(this->m_cProgramIndex);
 }
 
@@ -249,6 +243,7 @@ void MainWindow::showEvent(QShowEvent *ev)
 {
     Q_UNUSED(ev);
     qDebug()<<"showEvent";
+    MainWindow::setGeometry(308,187,616,372);
 
     loadSettings();
     populateTree();
@@ -257,7 +252,6 @@ void MainWindow::showEvent(QShowEvent *ev)
 void MainWindow::closeEvent(QCloseEvent *ev)
 {
     Q_UNUSED(ev);
-
     qDebug()<<"closeEvent";
 }
 
@@ -266,8 +260,11 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     Q_UNUSED(event);
 
     //qDebug()<<"Resize"<<ui->tableWidget->size();
-    //qDebug()<<"Resize"<<MainWindow::width();
-    //qDebug()<<"Resize"<<MainWindow::height();
+    //qDebug()<<"ResizeWidth"<<MainWindow::width();
+    //qDebug()<<"ResizeHeight"<<MainWindow::height();
+
+    int mainWidht = MainWindow::width();
+    int mainHeight = MainWindow::height();
 
     int treeWidgetLeftMargin = 5;
     int treeWidgetTopMargin = 5;
@@ -280,19 +277,14 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     int mainToolbarHeight = ui->mainToolBar->height();
     int bothControlsHeight = statusBarHeight + mainToolbarHeight;
 
-    ui->treeWidget->setGeometry(treeWidgetLeftMargin, treeWidgetTopMargin, treeWidgetWidth, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
-    ui->tableWidget->setGeometry(tableWidgetLeftMargin+ui->treeWidget->width()+tableWidgetRightMargin, tableWidgetTopMargin, MainWindow::width()-ui->treeWidget->width()-15, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
-}
 
-void MainWindow::on_tableWidget_doubleClicked(const QModelIndex &index)
-{
-    Q_UNUSED(index);
-    qDebug()<<"double click";
-}
-
-void MainWindow::on_tableWidget_viewportEntered()
-{
-    qDebug()<<"viewport";
+    if(mainWidht<617 || mainHeight<188) {
+        MainWindow::setGeometry(308,187,616,372);
+    }
+    else {
+        ui->treeWidget->setGeometry(treeWidgetLeftMargin, treeWidgetTopMargin, treeWidgetWidth, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
+        ui->tableWidget->setGeometry(tableWidgetLeftMargin+ui->treeWidget->width()+tableWidgetRightMargin, tableWidgetTopMargin, MainWindow::width()-ui->treeWidget->width()-15, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
+    }
 }
 
 void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
@@ -318,7 +310,8 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
     QString stringToSplit = programData[m_cProgramIndex][row+1];
     QStringList query = stringToSplit.split(rx);
     query[column] = ui->tableWidget->item(row, column)->text();
-    qDebug()<<query;
+    //qDebug()<<query;
+
     programData[m_cProgramIndex][row+1] = query[0]+","+query[1]+","+query[2]+","+query[3];
 }
 
@@ -326,15 +319,9 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
 void MainWindow::on_tableWidget_itemChanged(QTableWidgetItem *item)
 {
     qDebug()<<"tableWidget item";
+    ComboBoxDelegate* cbid = new ComboBoxDelegate();
+    ui->tableWidget->setItemDelegateForColumn(0,cbid);
 
-    //ui->tableWidget->item(0,0);
-    //cbid->item
-    //QStringList y = ui->tableWidget->ite
-    //ui->tableWidget->itemDelegate();
-
-    //qDebug()<<y;
-    //qDebug()<< programData[m_cProgramIndex][1];
-    //programData[m_cProgramIndex][0] = y;
 }
 
 void MainWindow::saveTable()
@@ -364,20 +351,15 @@ void MainWindow::saveTable()
     }
 }
 
-
 //[{"Type": "Begin"}, {"Type": "Pause", "Time": "25000"}, {"Type": "Charge", "Time": "30000", "Current": "30.0"}, {"Type": "Charge", "Time": "1800000", "Current": "27.4", "Maxtemp": "31.0", "Mintemp": "20.0"}, {"Type": "Charge", "Time": "1200000", "Current": "18.6", "Maxtemp": "31.0", "Mintemp": "20.5"}, {"Type": "Pause", "Time": "180000"}, {"Type": "Charge", "Time": "1200000", "Current": "9.0"}, {"Type": "Pause", "Time": "60000"}, {"Type": "Charge", "Time": "900000", "Current": "12.4", "Maxtemp": "29.0", "Mintemp": "20.1"}, {"Type": "Charge", "Time": "1200000", "Current": "8.2", "Maxtemp": "30.3", "Mintemp": "20.0"}, {"Type": "Charge", "Time": "1500000", "Current": "25.6", "Maxtemp": "30.3", "Mintemp": "20.0"}, {"Type": "Pause", "Time": "180000"}, {"Type": "Charge", "Time": "1200000", "Current": "17.6"}, {"Type": "End"}]
 
 
-
-void MainWindow::on_tableWidget_itemDoubleClicked(QTableWidgetItem *item)
+void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
 {
-    qDebug()<<"edit itemTable";
-
-    ComboBoxDelegate* cbid = new ComboBoxDelegate();
-    ui->tableWidget->setItemDelegateForColumn(0,cbid);
+    qDebug()<<"itemClicked";
 
     qDebug()<<"text";
-    QTableWidgetItem *itab = ui->tableWidget->item(0,0);
+    QTableWidgetItem *itab = ui->tableWidget->item(programData[m_cProgramIndex].count()-2,0);
     QString itabtext = itab->text();
     qDebug()<<itabtext;
 
@@ -389,7 +371,7 @@ void MainWindow::on_tableWidget_itemDoubleClicked(QTableWidgetItem *item)
         ui->tableWidget->setItem(programData[m_cProgramIndex].count()-2,1,item);
         ui->tableWidget->item(programData[m_cProgramIndex].count()-2,1)->setBackgroundColor(colorLive);
     }
-    else {
+    if(itabtext == "Pausa"){
         QColor colorLive(Qt::lightGray);
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
         ui->tableWidget->setItem(programData[m_cProgramIndex].count()-2,1,item);

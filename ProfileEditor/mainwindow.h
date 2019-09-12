@@ -47,14 +47,9 @@ private slots:
     void populateTable(int pgmIdx);
 
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
-    void on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 
     void on_pushButton_clicked();
     void on_pushButton_2_clicked();
-
-    void on_tableWidget_doubleClicked(const QModelIndex &index);
-
-    void on_tableWidget_viewportEntered();
 
     void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
@@ -64,7 +59,7 @@ private slots:
 
     void on_tableWidget_itemChanged(QTableWidgetItem *item);
 
-    void on_tableWidget_itemDoubleClicked(QTableWidgetItem *item);
+    void on_tableWidget_itemClicked(QTableWidgetItem *item);
 
 private:
     Ui::MainWindow *ui;

@@ -17,9 +17,9 @@ QWidget *ComboBoxDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
     // Create the combobox and populate it
     QComboBox *cb = new QComboBox(parent);
     const int row = index.row();
-    cb->addItem(QString("Pausa").arg(row));
     cb->addItem(QString("Carga").arg(row));
-    //cb->addItem(QString("three in row %1").arg(row));
+    cb->addItem(QString("Pausa").arg(row));
+
     return cb;
 }
 
@@ -36,11 +36,6 @@ void ComboBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
     if (cbIndex >= 0)
       cb->setCurrentIndex(cbIndex);
 
-    if(currentText=="Carga"){
-        qDebug()<<"habilita";
-    }
-    else {
-    }
     //qDebug()<<"currentText";
     //qDebug()<<currentText;
     //qDebug()<<"setEditor";
