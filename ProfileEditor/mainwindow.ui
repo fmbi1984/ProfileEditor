@@ -23,6 +23,9 @@
       <height>199</height>
      </rect>
     </property>
+    <attribute name="horizontalHeaderHighlightSections">
+     <bool>true</bool>
+    </attribute>
    </widget>
    <widget class="QTreeWidget" name="treeWidget">
     <property name="geometry">
@@ -88,6 +91,8 @@
    <addaction name="actionBorrar"/>
    <addaction name="actionCancelar"/>
    <addaction name="actionSalir"/>
+   <addaction name="actionAgregar_Renglon"/>
+   <addaction name="actionBorrar_Renglon"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QMenuBar" name="menuBar">
@@ -188,6 +193,24 @@
    </property>
    <property name="toolTip">
     <string>Salir</string>
+   </property>
+  </action>
+  <action name="actionAgregar_Renglon">
+   <property name="icon">
+    <iconset resource="resourse.qrc">
+     <normaloff>:/rec/image/agregarRenglon.png</normaloff>:/rec/image/agregarRenglon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Agregar Renglon</string>
+   </property>
+  </action>
+  <action name="actionBorrar_Renglon">
+   <property name="icon">
+    <iconset resource="resourse.qrc">
+     <normaloff>:/rec/image/borrarRenglon.png</normaloff>:/rec/image/borrarRenglon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Borrar Renglon</string>
    </property>
   </action>
  </widget>

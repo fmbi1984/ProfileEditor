@@ -6,5 +6,7 @@
         <file>image/cancelar.png</file>
         <file>image/salir.png</file>
         <file>image/renombrar.png</file>
+        <file>image/agregarRenglon.png</file>
+        <file>image/borrarRenglon.png</file>
     </qresource>
 </RCC>

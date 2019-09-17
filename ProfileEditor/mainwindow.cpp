@@ -8,12 +8,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::WindowMaximizeButtonHint);
+
     setWindowTitle("Profile Editor");
 
-    ui->tableWidget->setColumnCount(4);
+    ui->tableWidget->setColumnCount(5);
+    ui->tableWidget->setColumnWidth(3,30);
+    //ui->tableWidget->setRowCount(1);
+    //ui->tableWidget->setSpan(0,3,1,2);
 
-    QStringList tableTitles({"Modo Operación","Valor Nominal","Termino","Stand-By"});
+    QStringList tableTitles({"Modo Operación","Valor Nominal","Termino","","Stand-By"});
     ui->tableWidget->setHorizontalHeaderLabels(tableTitles);
+
+
 
     //ui->tableWidget->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
 
@@ -39,7 +46,7 @@ void MainWindow::on_actionNuevo_triggered()
 
     tree->addTopLevelItem(topLevel);
 
-    programData.append({"124-SGL","-,-,-,-"});
+    programData.append({"124-SGL","-,-,-,-,-"});
 }
 
 void MainWindow::on_actionGuardar_triggered()
@@ -144,6 +151,7 @@ void MainWindow::populateTable(int pgmIdx)
         ui->tableWidget->setItem(nstep, 1, new QTableWidgetItem(query[1]));
         ui->tableWidget->setItem(nstep, 2, new QTableWidgetItem(query[2]));
         ui->tableWidget->setItem(nstep, 3, new QTableWidgetItem(query[3]));
+        ui->tableWidget->setItem(nstep, 4, new QTableWidgetItem(query[4]));
     }
 }
 
@@ -224,7 +232,7 @@ void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
 void MainWindow::on_pushButton_clicked()
 {
     qDebug()<<"Agregar";
-    programData[this->m_cProgramIndex].append("-,-,-,-");
+    programData[this->m_cProgramIndex].append("-,-,-,-,-");
     ui->tableWidget->setRowCount(programData[0].count()-1);
 
     populateTable(this->m_cProgramIndex);
@@ -243,7 +251,28 @@ void MainWindow::showEvent(QShowEvent *ev)
 {
     Q_UNUSED(ev);
     qDebug()<<"showEvent";
+
+    int treeWidgetLeftMargin = 5;
+    int treeWidgetTopMargin = 5;
+    int treeWidgetWidth = 120;
+    int tableWidgetLeftMargin = 5;
+    int tableWidgetRightMargin = 5;
+    int tableWidgetTopMargin = 5;
+
+    int statusBarHeight = ui->statusBar->height();
+    int mainToolbarHeight = ui->mainToolBar->height();
+    int bothControlsHeight = statusBarHeight + mainToolbarHeight;
+
     MainWindow::setGeometry(308,187,616,372);
+
+    ui->tableWidget->setColumnWidth(0,112);
+    ui->tableWidget->setColumnWidth(1,112);
+    ui->tableWidget->setColumnWidth(2,112);
+    ui->tableWidget->setColumnWidth(3,30);
+    ui->tableWidget->setColumnWidth(4,112);
+
+    ui->treeWidget->setGeometry(treeWidgetLeftMargin, treeWidgetTopMargin, treeWidgetWidth, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
+    ui->tableWidget->setGeometry(tableWidgetLeftMargin+ui->treeWidget->width()+tableWidgetRightMargin, tableWidgetTopMargin, MainWindow::width()-ui->treeWidget->width()-15, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
 
     loadSettings();
     populateTree();
@@ -265,10 +294,11 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
     int mainWidht = MainWindow::width();
     int mainHeight = MainWindow::height();
+    int tableSize = ui->tableWidget->size().width();
 
     int treeWidgetLeftMargin = 5;
     int treeWidgetTopMargin = 5;
-    int treeWidgetWidth = 100;
+    int treeWidgetWidth = 120;
     int tableWidgetLeftMargin = 5;
     int tableWidgetRightMargin = 5;
     int tableWidgetTopMargin = 5;
@@ -276,14 +306,26 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     int statusBarHeight = ui->statusBar->height();
     int mainToolbarHeight = ui->mainToolBar->height();
     int bothControlsHeight = statusBarHeight + mainToolbarHeight;
+    int tableWidth = (tableSize - 30) / 4;
 
+    //qDebug()<<"tableWidth"<<tableWidth;
 
     if(mainWidht<617 || mainHeight<188) {
         MainWindow::setGeometry(308,187,616,372);
+        ui->tableWidget->setColumnWidth(0,112);
+        ui->tableWidget->setColumnWidth(1,112);
+        ui->tableWidget->setColumnWidth(2,112);
+        ui->tableWidget->setColumnWidth(3,30);
+        ui->tableWidget->setColumnWidth(4,112);
     }
     else {
         ui->treeWidget->setGeometry(treeWidgetLeftMargin, treeWidgetTopMargin, treeWidgetWidth, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
         ui->tableWidget->setGeometry(tableWidgetLeftMargin+ui->treeWidget->width()+tableWidgetRightMargin, tableWidgetTopMargin, MainWindow::width()-ui->treeWidget->width()-15, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
+        ui->tableWidget->setColumnWidth(0,tableWidth);
+        ui->tableWidget->setColumnWidth(1,tableWidth);
+        ui->tableWidget->setColumnWidth(2,tableWidth);
+        //ui->tableWidget->setColumnWidth(3,30);
+        ui->tableWidget->setColumnWidth(4,tableWidth);
     }
 }
 
@@ -312,7 +354,8 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
     query[column] = ui->tableWidget->item(row, column)->text();
     //qDebug()<<query;
 
-    programData[m_cProgramIndex][row+1] = query[0]+","+query[1]+","+query[2]+","+query[3];
+    programData[m_cProgramIndex][row+1] = query[0]+","+query[1]+","+query[2]+","+query[3]+","+query[4];
+    qDebug()<<query;
 }
 
 
@@ -322,23 +365,25 @@ void MainWindow::on_tableWidget_itemChanged(QTableWidgetItem *item)
     ComboBoxDelegate* cbid = new ComboBoxDelegate();
     ui->tableWidget->setItemDelegateForColumn(0,cbid);
 
+    ComboBoxTime* cbtime = new ComboBoxTime();
+    ui->tableWidget->setItemDelegateForColumn(3,cbtime);
 }
 
 void MainWindow::saveTable()
 {
     qDebug()<<"saveTable";
-    QString itabtext[4];
+    QString itabtext[5];
 
     //qDebug()<<programData[m_cProgramIndex].count()-1;
 
     for (int j = 0;j<programData[m_cProgramIndex].count()-1;++j) {
-        for (int i = 0;i<4;++i) {
+        for (int i = 0;i<5;++i) {
             QTableWidgetItem *itab = ui->tableWidget->item(j,i);
             //ui->tableWidget->
             itabtext[i] = itab->text();
             //qDebug()<<itabtext[i];
         }
-        QString text={itabtext[0]+","+itabtext[1]+","+itabtext[2]+","+itabtext[3]};
+        QString text={itabtext[0]+","+itabtext[1]+","+itabtext[2]+","+itabtext[3]+","+itabtext[4]};
         qDebug()<<"text";
         qDebug()<<text;
 
@@ -360,16 +405,19 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
 
     qDebug()<<"text";
     QTableWidgetItem *itab = ui->tableWidget->item(programData[m_cProgramIndex].count()-2,0);
+    itab->setTextAlignment(Qt::AlignCenter);
+
     QString itabtext = itab->text();
     qDebug()<<itabtext;
 
     item = new QTableWidgetItem("-");
 
     if(itabtext == "Carga"){
-        QColor colorLive(Qt::white);
+        //QColor colorLive(Qt::white);  //flag
         item->setFlags(item->flags() | Qt::ItemIsEditable);
-        ui->tableWidget->setItem(programData[m_cProgramIndex].count()-2,1,item);
-        ui->tableWidget->item(programData[m_cProgramIndex].count()-2,1)->setBackgroundColor(colorLive);
+        //ui->tableWidget->setItem(programData[m_cProgramIndex].count()-2,1,item);
+        //ui->tableWidget->item(programData[m_cProgramIndex].count()-2,1)->setBackgroundColor(colorLive);
+
     }
     if(itabtext == "Pausa"){
         QColor colorLive(Qt::lightGray);

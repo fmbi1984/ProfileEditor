@@ -12,10 +12,10 @@
 #include <QStandardItemModel>
 #include <QDir>
 #include <QTreeWidget>
+#include <QHeaderView>
 #include "comboboxdelegate.h"
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QJsonDocument>
+#include "comboboxtime.h"
+
 
 namespace Ui {
 class MainWindow;

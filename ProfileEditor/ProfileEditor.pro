@@ -26,11 +26,13 @@ CONFIG += c++11
 
 SOURCES += \
         comboboxdelegate.cpp \
+        comboboxtime.cpp \
         main.cpp \
         mainwindow.cpp
 
 HEADERS += \
         comboboxdelegate.h \
+        comboboxtime.h \
         mainwindow.h
 
 FORMS += \
