@@ -48,9 +48,6 @@ private slots:
 
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
 
-    void on_pushButton_clicked();
-    void on_pushButton_2_clicked();
-
     void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
     void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
@@ -61,6 +58,10 @@ private slots:
 
     void on_tableWidget_itemClicked(QTableWidgetItem *item);
 
+    void on_actionAgregar_Renglon_triggered();
+
+    void on_actionBorrar_Renglon_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -68,6 +69,7 @@ private:
     void closeEvent(QCloseEvent *ev);
 
     void resizeEvent(QResizeEvent* resizeEvent);
+    void keyPressEvent(QKeyEvent *event);
 
     QString m_sSettingsFile;
     QList <QStringList> programData;

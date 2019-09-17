@@ -1,5 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 //Carpertas FormationDataFiles -reportes  //configFiles settings
 
@@ -20,8 +23,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QStringList tableTitles({"Modo Operación","Valor Nominal","Termino","","Stand-By"});
     ui->tableWidget->setHorizontalHeaderLabels(tableTitles);
 
-
-
     //ui->tableWidget->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
 
     QString treeTitle = "Programa";
@@ -38,15 +39,17 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionNuevo_triggered()
 {
     qDebug()<<"Nuevo";
-
     QTreeWidget * tree = ui->treeWidget;
 
     QTreeWidgetItem * topLevel = new QTreeWidgetItem();
-    topLevel->setText(0, "124-SGL");
+
+    this->m_cProgramIndex = ui->treeWidget->topLevelItemCount()+1;
+    QString idx = QString::number(m_cProgramIndex);
+    topLevel->setText(0,idx+"-SGL");
 
     tree->addTopLevelItem(topLevel);
 
-    programData.append({"124-SGL","-,-,-,-,-"});
+    programData.append({idx+"-SGL","-,-,-,-,-"});
 }
 
 void MainWindow::on_actionGuardar_triggered()
@@ -54,6 +57,7 @@ void MainWindow::on_actionGuardar_triggered()
     qDebug()<<"Guardar";
     saveTable();
     saveSettings();
+    jsonTable();
 }
 
 void MainWindow::on_actionRenombrar_triggered()
@@ -68,8 +72,9 @@ void MainWindow::on_actionBorrar_triggered()
      qDebug()<<programData.count();
      programData.removeAt(this->m_cProgramIndex);
      qDebug()<<programData.count();
-     ui->tableWidget->clear();
+     ui->tableWidget->clearContents();
      ui->treeWidget->takeTopLevelItem(this->m_cProgramIndex);
+     qDebug()<<"taketop"<<ui->treeWidget->takeTopLevelItem(this->m_cProgramIndex);
      //populateTable(this->m_cProgramIndex);
 }
 
@@ -138,11 +143,12 @@ void MainWindow::populateTree()
 void MainWindow::populateTable(int pgmIdx)
 {
     qDebug()<<"populateTable";
+
     ui->tableWidget->setRowCount(programData[pgmIdx].count()-1);
     for(int nstep=0;nstep<programData[pgmIdx].count()-1;nstep++)
     {
-        QRegExp rx("(\\ |\\,|\\.|\\:|\\t)"); //RegEx for ' ' or ',' or '.' or ':' or '\t'
-
+        //QRegExp rx("(\\ |\\,|\\.|\\:|\\t)"); //RegEx for ' ' or ',' or '.' or ':' or '\t'
+        QRegExp rx(",");
         QString stringToSplit = programData[pgmIdx][nstep+1];
         QStringList query = stringToSplit.split(rx);
         //qDebug()<<query;
@@ -159,58 +165,77 @@ void MainWindow::jsonTable()
 {
     //Modo operacion,valor nominal, termino, stand-by
 
+    qDebug()<<"Json";
     qDebug()<<programData.size();
 
-    for (int j=1;j<programData.size();++j) {
-        QStringList list1 = {programData[0][j]};
-        //QStringList list1 = {"Carga,15,5,-"};
-        qDebug()<<"list1";
-        qDebug()<<list1;
+    for (int j=0;j<programData.size();++j) {
+        QString idx = QString::number(j);
+        QString prb = idx+"Prueba.txt";
+        QFile file(prb);
 
-        QStringList list3;
+        if ( file.open(QIODevice::ReadWrite) )
+        {
+            QTextStream stream( &file );
+            //stream << "something" << endl;
 
-        QString temp0;
-        QString temp1;
-        QString temp2;
-        QString temp3;
-        QString stepCount[list1.size()];
+            stream<<"[{Type:Begin},";
+            qDebug()<<"[{Type:Begin},";
+            for (int i=1;i<programData[j].size();++i) {
+                QStringList list1 = {programData[j]};
+                //qDebug()<<"list1"<<list1.size();
 
-        for (int i = 0; i < list1.size(); ++i){
-            QString list2 = list1.at(i).toLocal8Bit().constData();
-            for(int x = 0; x < 4; ++x)
-            {
+                QStringList list3;
+
+                QString temp0;
+                QString temp1;
+                QString temp2;
+                QString temp3;
+                QString temp4;
+                QString valTime;
+                QString stepCount[list1.size()];
+
+                QString list2 = list1.at(i).toLocal8Bit().constData();
+
                 list3 = list2.split(',');
                 temp0 = list3[0];
                 temp1 = list3[1];
                 temp2 = list3[2];
                 temp3 = list3[3];
-            }
+                temp4 = list3[4];
 
-            if(temp0 == "Carga") {
-                stepCount[i] = {"{Type:"+temp0+",Current:"+temp1+",Time:"+temp2+",Temp:"+temp3+"}"};
-                stepCount[i].replace("-","0.0");
-                qDebug()<<"stepCount0";
-                qDebug()<<stepCount[i];
-            }
-            else {
-                stepCount[i] = {"{Type:"+temp0+",Time:"+temp2+"}"};
-                qDebug()<<"stepCount1";
-                qDebug()<<stepCount[i];
+                if(temp3=="AH"){
+                    valTime = ",AH:";
+                }
+                else {
+                    valTime = ",Time:";
+                }
 
-                /*QTableWidgetItem *item = new QTableWidgetItem("-");
-                item->setFlags(item->flags() & ~Qt::ItemIsEditable); //non editable
-                ui->tableWidget->setItem(0,1,item);*/
+                if(temp0 == "Carga") {
+                    stepCount[i] = {"{Type:"+temp0+",Current:"+temp1+valTime+temp2+",Temp:"+temp4+"}"};
+                    stepCount[i].replace("-","0.0");
+                    //qDebug()<<"stepCount0";
+                    //qDebug()<<stepCount[i];
+                }
+                else {
+                    stepCount[i] = {"{Type:"+temp0+",Time:"+temp2+"}"};
+                    //qDebug()<<"stepCount1";
+                    //qDebug()<<stepCount[i];
+                }
+
+
+                //for (int j=0;j<list1.size();++j) {
+                   QString stepTotal = {stepCount[i]+","};
+                    //QStringList stepTotal = {"[{Type:Begin},"+stepCount[0]+",{Type:End}]"};
+                    //QStringList stepTotal = {","+stepCount[j]+","};
+                   qDebug()<<stepTotal;
+                   stream<<stepTotal;
+               // }
+
             }
+             qDebug()<<"{Type:End}]";
+             stream<<"{Type:End}]";
         }
 
-        //qDebug()<<"[{Type:Begin},";
-        //for (int j=0;j<list1.size();++j) {
-            //QStringList stepTotal = {"[{Type:Begin},"+stepCount[0]+","+stepCount[1]+","+stepCount[2]+",{Type:End}]"};
-            //QStringList stepTotal = {"[{Type:Begin},"+stepCount[0]+",{Type:End}]"};
-            //QStringList stepTotal = {","+stepCount[j]+","};
-            //qDebug()<<stepTotal;
-        //}
-        //qDebug()<<"[{Type:End}]";
     }
 }
 void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
@@ -227,24 +252,6 @@ void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
     } catch(...) {
         //ui->tableWidget->clear();
     }
-}
-
-void MainWindow::on_pushButton_clicked()
-{
-    qDebug()<<"Agregar";
-    programData[this->m_cProgramIndex].append("-,-,-,-,-");
-    ui->tableWidget->setRowCount(programData[0].count()-1);
-
-    populateTable(this->m_cProgramIndex);
-}
-
-void MainWindow::on_pushButton_2_clicked()
-{
-    qDebug()<<"Eliminar";
-
-    programData[this->m_cProgramIndex].removeLast();
-    ui->tableWidget->setRowCount(programData[0].count()-1);
-    populateTable(this->m_cProgramIndex);
 }
 
 void MainWindow::showEvent(QShowEvent *ev)
@@ -344,18 +351,16 @@ void MainWindow::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
     programData[m_cProgramIndex][0] = d;
 }
 
-
 void MainWindow::on_tableWidget_cellChanged(int row, int column)
 {
     qDebug()<<"cell changed";
-    QRegExp rx("(\\ |\\,|\\.|\\:|\\t)"); //RegEx for ' ' or ',' or '.' or ':' or '\t'
+    //QRegExp rx("(\\ |\\,|\\.|\\:|\\t)"); //RegEx for ' ' or ',' or '.' or ':' or '\t'
+    QRegExp rx(",");
     QString stringToSplit = programData[m_cProgramIndex][row+1];
     QStringList query = stringToSplit.split(rx);
     query[column] = ui->tableWidget->item(row, column)->text();
     //qDebug()<<query;
-
     programData[m_cProgramIndex][row+1] = query[0]+","+query[1]+","+query[2]+","+query[3]+","+query[4];
-    qDebug()<<query;
 }
 
 
@@ -403,12 +408,11 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
 {
     qDebug()<<"itemClicked";
 
-    qDebug()<<"text";
     QTableWidgetItem *itab = ui->tableWidget->item(programData[m_cProgramIndex].count()-2,0);
-    itab->setTextAlignment(Qt::AlignCenter);
+    //itab->setTextAlignment(Qt::AlignCenter);
 
     QString itabtext = itab->text();
-    qDebug()<<itabtext;
+    qDebug()<<"textColumn0"<<itabtext;
 
     item = new QTableWidgetItem("-");
 
@@ -426,3 +430,39 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
         ui->tableWidget->item(programData[m_cProgramIndex].count()-2,1)->setBackgroundColor(colorLive);
     }
 }
+
+void MainWindow::on_actionAgregar_Renglon_triggered()
+{
+    qDebug()<<"Agregar";
+    programData[this->m_cProgramIndex].append("-,-,-,-,-");
+    ui->tableWidget->setRowCount(programData[0].count()-1);
+
+    qDebug()<<"m_cProgram"<<m_cProgramIndex;
+
+    populateTable(this->m_cProgramIndex);
+}
+
+void MainWindow::on_actionBorrar_Renglon_triggered()
+{
+    qDebug()<<"Eliminar";
+
+    programData[this->m_cProgramIndex].removeLast();
+    ui->tableWidget->setRowCount(programData[0].count()-1);
+    populateTable(this->m_cProgramIndex);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    Q_UNUSED(event);
+
+
+    /*switch(event->key()) {
+    case Qt::Key_Escape: // si se pulsa ESCAPE se cierra la ventana
+        close();
+        break;
+    default: // imprimir tecla pulsada
+        qDebug() << "Código: " << event->key() << "\nCarácter: " << event->text();
+        QMainWindow::keyPressEvent(event);
+    }*/
+}
+
