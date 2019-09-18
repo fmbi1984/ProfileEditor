@@ -169,9 +169,13 @@ void MainWindow::jsonTable()
     qDebug()<<programData.size();
 
     for (int j=0;j<programData.size();++j) {
-        QString idx = QString::number(j);
-        QString prb = idx+"Prueba.txt";
+        QString name = programData[j][0];
+        //QString idx = QString::number(j);
+
+        QString prb = name+".txt"; //.txt .json
         QFile file(prb);
+
+        //QFile file(prb);
 
         if ( file.open(QIODevice::ReadWrite) )
         {
@@ -369,6 +373,12 @@ void MainWindow::on_tableWidget_itemChanged(QTableWidgetItem *item)
     qDebug()<<"tableWidget item";
     ComboBoxDelegate* cbid = new ComboBoxDelegate();
     ui->tableWidget->setItemDelegateForColumn(0,cbid);
+
+    SpinBoxDelegate* sbd = new SpinBoxDelegate();
+    ui->tableWidget->setItemDelegateForColumn(1,sbd);
+
+    TimeDelegate* editime = new TimeDelegate();
+    ui->tableWidget->setItemDelegateForColumn(2,editime);
 
     ComboBoxTime* cbtime = new ComboBoxTime();
     ui->tableWidget->setItemDelegateForColumn(3,cbtime);

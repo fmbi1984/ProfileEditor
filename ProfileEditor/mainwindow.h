@@ -15,6 +15,8 @@
 #include <QHeaderView>
 #include "comboboxdelegate.h"
 #include "comboboxtime.h"
+#include "timedelegate.h"
+#include "spinboxdelegate.h"
 
 
 namespace Ui {

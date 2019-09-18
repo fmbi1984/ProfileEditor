@@ -28,12 +28,16 @@ SOURCES += \
         comboboxdelegate.cpp \
         comboboxtime.cpp \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+        spinboxdelegate.cpp \
+        timedelegate.cpp
 
 HEADERS += \
         comboboxdelegate.h \
         comboboxtime.h \
-        mainwindow.h
+        mainwindow.h \
+        spinboxdelegate.h \
+        timedelegate.h
 
 FORMS += \
         mainwindow.ui
