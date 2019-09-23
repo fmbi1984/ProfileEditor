@@ -1,30 +1,30 @@
-#include "spinboxdelegate.h"
+#include "spinboxtemp.h"
 
 
-SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
+SpinBoxTemp::SpinBoxTemp(QObject *parent)
     : QStyledItemDelegate(parent)
 {
 }
 
 
-SpinBoxDelegate::~SpinBoxDelegate()
+SpinBoxTemp::~SpinBoxTemp()
 {
 }
 
 
-QWidget *SpinBoxDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget *SpinBoxTemp::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {  
     QDoubleSpinBox *editor = new QDoubleSpinBox(parent);
     editor->setFrame(false);
     editor->setDecimals(1);
     editor->setMinimum(0.0);
-    editor->setMaximum(25);
+    editor->setMaximum(80);
 
     return editor;
 }
 
 
-void SpinBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void SpinBoxTemp::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     double value = index.model()->data(index,Qt::EditRole).toDouble();
 
@@ -33,7 +33,7 @@ void SpinBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
 }
 
 
-void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+void SpinBoxTemp::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     QDoubleSpinBox *spinBox = static_cast<QDoubleSpinBox*>(editor);
     spinBox->interpretText();

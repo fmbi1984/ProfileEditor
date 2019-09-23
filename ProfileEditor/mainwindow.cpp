@@ -1,8 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
 
 //Carpertas FormationDataFiles -reportes  //configFiles settings
 
@@ -15,12 +12,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setWindowTitle("Profile Editor");
 
-    ui->tableWidget->setColumnCount(5);
-    ui->tableWidget->setColumnWidth(3,30);
+    ui->tableWidget->setColumnCount(6);
+    //ui->tableWidget->setColumnWidth(3,30);
     //ui->tableWidget->setRowCount(1);
     //ui->tableWidget->setSpan(0,3,1,2);
 
-    QStringList tableTitles({"Modo Operación","Valor Nominal","Termino","","Stand-By"});
+    QStringList tableTitles({"Modo Operación","Valor Nominal","Termino","","",""});
     ui->tableWidget->setHorizontalHeaderLabels(tableTitles);
 
     //ui->tableWidget->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
@@ -29,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeWidget->setHeaderLabel(treeTitle);
 
     ui->treeWidget->header()->setDefaultAlignment(Qt::AlignCenter);
+
 }
 
 MainWindow::~MainWindow()
@@ -49,7 +47,7 @@ void MainWindow::on_actionNuevo_triggered()
 
     tree->addTopLevelItem(topLevel);
 
-    programData.append({idx+"-SGL","-,-,-,-,-"});
+    programData.append({idx+"-SGL","-,-,-,-,-,-"});
 }
 
 void MainWindow::on_actionGuardar_triggered()
@@ -158,6 +156,7 @@ void MainWindow::populateTable(int pgmIdx)
         ui->tableWidget->setItem(nstep, 2, new QTableWidgetItem(query[2]));
         ui->tableWidget->setItem(nstep, 3, new QTableWidgetItem(query[3]));
         ui->tableWidget->setItem(nstep, 4, new QTableWidgetItem(query[4]));
+        ui->tableWidget->setItem(nstep, 5, new QTableWidgetItem(query[5]));
     }
 }
 
@@ -195,6 +194,7 @@ void MainWindow::jsonTable()
                 QString temp2;
                 QString temp3;
                 QString temp4;
+                QString temp5;
                 QString valTime;
                 QString stepCount[list1.size()];
 
@@ -206,6 +206,7 @@ void MainWindow::jsonTable()
                 temp2 = list3[2];
                 temp3 = list3[3];
                 temp4 = list3[4];
+                temp5 = list3[5];
 
                 if(temp3=="AH"){
                     valTime = ",AH:";
@@ -276,11 +277,12 @@ void MainWindow::showEvent(QShowEvent *ev)
 
     MainWindow::setGeometry(308,187,616,372);
 
-    ui->tableWidget->setColumnWidth(0,112);
-    ui->tableWidget->setColumnWidth(1,112);
-    ui->tableWidget->setColumnWidth(2,112);
+    ui->tableWidget->setColumnWidth(0,116);
+    ui->tableWidget->setColumnWidth(1,116);
+    ui->tableWidget->setColumnWidth(2,116);
     ui->tableWidget->setColumnWidth(3,30);
-    ui->tableWidget->setColumnWidth(4,112);
+    ui->tableWidget->setColumnWidth(4,50);
+    ui->tableWidget->setColumnWidth(5,50);
 
     ui->treeWidget->setGeometry(treeWidgetLeftMargin, treeWidgetTopMargin, treeWidgetWidth, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
     ui->tableWidget->setGeometry(tableWidgetLeftMargin+ui->treeWidget->width()+tableWidgetRightMargin, tableWidgetTopMargin, MainWindow::width()-ui->treeWidget->width()-15, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
@@ -299,7 +301,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
 
-    //qDebug()<<"Resize"<<ui->tableWidget->size();
+    qDebug()<<"Resize"<<ui->tableWidget->size();
     //qDebug()<<"ResizeWidth"<<MainWindow::width();
     //qDebug()<<"ResizeHeight"<<MainWindow::height();
 
@@ -317,17 +319,18 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     int statusBarHeight = ui->statusBar->height();
     int mainToolbarHeight = ui->mainToolBar->height();
     int bothControlsHeight = statusBarHeight + mainToolbarHeight;
-    int tableWidth = (tableSize - 30) / 4;
+    int tableWidth = (tableSize - 170) / 3;
 
     //qDebug()<<"tableWidth"<<tableWidth;
 
     if(mainWidht<617 || mainHeight<188) {
         MainWindow::setGeometry(308,187,616,372);
-        ui->tableWidget->setColumnWidth(0,112);
-        ui->tableWidget->setColumnWidth(1,112);
-        ui->tableWidget->setColumnWidth(2,112);
+        ui->tableWidget->setColumnWidth(0,116);
+        ui->tableWidget->setColumnWidth(1,116);
+        ui->tableWidget->setColumnWidth(2,116);
         ui->tableWidget->setColumnWidth(3,30);
-        ui->tableWidget->setColumnWidth(4,112);
+        ui->tableWidget->setColumnWidth(4,50);
+        ui->tableWidget->setColumnWidth(5,50);
     }
     else {
         ui->treeWidget->setGeometry(treeWidgetLeftMargin, treeWidgetTopMargin, treeWidgetWidth, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
@@ -336,7 +339,8 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         ui->tableWidget->setColumnWidth(1,tableWidth);
         ui->tableWidget->setColumnWidth(2,tableWidth);
         //ui->tableWidget->setColumnWidth(3,30);
-        ui->tableWidget->setColumnWidth(4,tableWidth);
+        ui->tableWidget->setColumnWidth(4,70);
+        ui->tableWidget->setColumnWidth(5,70);
     }
 }
 
@@ -364,7 +368,7 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
     QStringList query = stringToSplit.split(rx);
     query[column] = ui->tableWidget->item(row, column)->text();
     //qDebug()<<query;
-    programData[m_cProgramIndex][row+1] = query[0]+","+query[1]+","+query[2]+","+query[3]+","+query[4];
+    programData[m_cProgramIndex][row+1] = query[0]+","+query[1]+","+query[2]+","+query[3]+","+query[4]+","+query[5];
 }
 
 
@@ -382,23 +386,29 @@ void MainWindow::on_tableWidget_itemChanged(QTableWidgetItem *item)
 
     ComboBoxTime* cbtime = new ComboBoxTime();
     ui->tableWidget->setItemDelegateForColumn(3,cbtime);
+
+    SpinBoxTemp* sbtmx = new SpinBoxTemp();
+    ui->tableWidget->setItemDelegateForColumn(4,sbtmx);
+
+    SpinBoxTemp* sbtmin = new SpinBoxTemp();
+    ui->tableWidget->setItemDelegateForColumn(5,sbtmin);
 }
 
 void MainWindow::saveTable()
 {
     qDebug()<<"saveTable";
-    QString itabtext[5];
+    QString itabtext[6];
 
     //qDebug()<<programData[m_cProgramIndex].count()-1;
 
     for (int j = 0;j<programData[m_cProgramIndex].count()-1;++j) {
-        for (int i = 0;i<5;++i) {
+        for (int i = 0;i<6;++i) {
             QTableWidgetItem *itab = ui->tableWidget->item(j,i);
             //ui->tableWidget->
             itabtext[i] = itab->text();
             //qDebug()<<itabtext[i];
         }
-        QString text={itabtext[0]+","+itabtext[1]+","+itabtext[2]+","+itabtext[3]+","+itabtext[4]};
+        QString text={itabtext[0]+","+itabtext[1]+","+itabtext[2]+","+itabtext[3]+","+itabtext[4]+","+itabtext[5]};
         qDebug()<<"text";
         qDebug()<<text;
 
@@ -444,7 +454,7 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
 void MainWindow::on_actionAgregar_Renglon_triggered()
 {
     qDebug()<<"Agregar";
-    programData[this->m_cProgramIndex].append("-,-,-,-,-");
+    programData[this->m_cProgramIndex].append("-,-,-,-,-,-");
     ui->tableWidget->setRowCount(programData[0].count()-1);
 
     qDebug()<<"m_cProgram"<<m_cProgramIndex;

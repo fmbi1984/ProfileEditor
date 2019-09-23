@@ -17,6 +17,8 @@
 #include "comboboxtime.h"
 #include "timedelegate.h"
 #include "spinboxdelegate.h"
+#include "spinboxtemp.h"
+#include <QWidget>
 
 
 namespace Ui {

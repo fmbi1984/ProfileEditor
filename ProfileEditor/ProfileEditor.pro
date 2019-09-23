@@ -30,6 +30,7 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
         spinboxdelegate.cpp \
+        spinboxtemp.cpp \
         timedelegate.cpp
 
 HEADERS += \
@@ -37,6 +38,7 @@ HEADERS += \
         comboboxtime.h \
         mainwindow.h \
         spinboxdelegate.h \
+        spinboxtemp.h \
         timedelegate.h
 
 FORMS += \

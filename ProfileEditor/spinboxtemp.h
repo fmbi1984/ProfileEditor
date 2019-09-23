@@ -1,5 +1,5 @@
-#ifndef SPINBOXDELEGATE_H
-#define SPINBOXDELEGATE_H
+#ifndef SPINBOXTEMP_H
+#define SPINBOXTEMP_H
 
 #include <QDoubleSpinBox>
 #include <QStyledItemDelegate>
@@ -7,12 +7,12 @@
 #include <QTableWidget>
 #include <QDebug>
 
-class SpinBoxDelegate : public QStyledItemDelegate
+class SpinBoxTemp : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    SpinBoxDelegate(QObject *parent = nullptr);
-    ~SpinBoxDelegate();
+    SpinBoxTemp(QObject *parent = nullptr);
+    ~SpinBoxTemp();
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     void setEditorData(QWidget *editor, const QModelIndex &index) const override;
