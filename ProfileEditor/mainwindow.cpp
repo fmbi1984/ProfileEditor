@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("Profile Editor");
 
     ui->tableWidget->setColumnCount(6);
-    //ui->tableWidget->setColumnWidth(3,30);
+
     //ui->tableWidget->setRowCount(1);
     //ui->tableWidget->setSpan(0,3,1,2);
 
@@ -26,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeWidget->setHeaderLabel(treeTitle);
 
     ui->treeWidget->header()->setDefaultAlignment(Qt::AlignCenter);
-
 }
 
 MainWindow::~MainWindow()
@@ -37,6 +36,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionNuevo_triggered()
 {
     qDebug()<<"Nuevo";
+    t = false;
     QTreeWidget * tree = ui->treeWidget;
 
     QTreeWidgetItem * topLevel = new QTreeWidgetItem();
@@ -46,8 +46,15 @@ void MainWindow::on_actionNuevo_triggered()
     topLevel->setText(0,idx+"-SGL");
 
     tree->addTopLevelItem(topLevel);
-
     programData.append({idx+"-SGL","-,-,-,-,-,-"});
+
+    /*for(int i=0; i<1; i++)
+    {
+        QTreeWidgetItem * item = new QTreeWidgetItem();
+        item->setText(0,"SGL" + QString::number(i+1));
+        topLevel->addChild(item);
+        programData.append({idx+"-SGL","-,-,-,-,-,-"});
+    }*/
 }
 
 void MainWindow::on_actionGuardar_triggered()
@@ -56,6 +63,8 @@ void MainWindow::on_actionGuardar_triggered()
     saveTable();
     saveSettings();
     jsonTable();
+    t = true;
+    qDebug()<<t;
 }
 
 void MainWindow::on_actionRenombrar_triggered()
@@ -85,22 +94,25 @@ void MainWindow::on_actionCancelar_triggered()
 
 void MainWindow::on_actionSalir_triggered()
 {
-    QMessageBox msg;
-    msg.setWindowTitle("Warning");
-    msg.setText("Desea guardar cambios");
-    msg.setStandardButtons(QMessageBox::Yes);
-    msg.addButton(QMessageBox::No);
-    msg.setDefaultButton(QMessageBox::No);
-    if(msg.exec() == QMessageBox::Yes){
-      // do something
-       qDebug()<<"SaveSettings";
-       saveSettings();
-       QApplication::quit();
-    }else {
-      // do something else
-        qDebug()<<"close";
-        QApplication::quit();
-    }
+   if(t == true) {
+     QApplication::quit();
+   }
+   else {
+       QMessageBox msg;
+       msg.setWindowTitle("Warning");
+       msg.setText("Desea guardar cambios");
+       msg.setStandardButtons(QMessageBox::Yes);
+       msg.addButton(QMessageBox::No);
+       msg.setDefaultButton(QMessageBox::Yes);
+       if(msg.exec() == QMessageBox::Yes){
+         // do something
+          saveSettings();
+          QApplication::quit();
+       }else {
+         // do something else
+           QApplication::quit();
+       }
+   }
 }
 
 void MainWindow::saveSettings()
@@ -143,14 +155,16 @@ void MainWindow::populateTable(int pgmIdx)
     qDebug()<<"populateTable";
 
     ui->tableWidget->setRowCount(programData[pgmIdx].count()-1);
+
     for(int nstep=0;nstep<programData[pgmIdx].count()-1;nstep++)
     {
         //QRegExp rx("(\\ |\\,|\\.|\\:|\\t)"); //RegEx for ' ' or ',' or '.' or ':' or '\t'
         QRegExp rx(",");
         QString stringToSplit = programData[pgmIdx][nstep+1];
         QStringList query = stringToSplit.split(rx);
-        //qDebug()<<query;
+        //qDebug()<<"query0"<<query;
         //qDebug()<<programData[pgmIdx][nstep+1];
+
         ui->tableWidget->setItem(nstep, 0, new QTableWidgetItem(query[0]));
         ui->tableWidget->setItem(nstep, 1, new QTableWidgetItem(query[1]));
         ui->tableWidget->setItem(nstep, 2, new QTableWidgetItem(query[2]));
@@ -216,7 +230,7 @@ void MainWindow::jsonTable()
                 }
 
                 if(temp0 == "Carga") {
-                    stepCount[i] = {"{Type:"+temp0+",Current:"+temp1+valTime+temp2+",Temp:"+temp4+"}"};
+                    stepCount[i] = {"{Type:"+temp0+",Current:"+temp1+valTime+temp2+",MaxTemp:"+temp4+",MinTemp:"+temp5+"}"};
                     stepCount[i].replace("-","0.0");
                     //qDebug()<<"stepCount0";
                     //qDebug()<<stepCount[i];
@@ -271,18 +285,21 @@ void MainWindow::showEvent(QShowEvent *ev)
     int tableWidgetRightMargin = 5;
     int tableWidgetTopMargin = 5;
 
+    //ui->mainToolBar->setGeometry(308,187,616,65);
+    //qDebug()<<"w"<<ui->mainToolBar->width();
+    //qDebug()<<"h"<<ui->mainToolBar->height();
     int statusBarHeight = ui->statusBar->height();
     int mainToolbarHeight = ui->mainToolBar->height();
     int bothControlsHeight = statusBarHeight + mainToolbarHeight;
 
     MainWindow::setGeometry(308,187,616,372);
 
-    ui->tableWidget->setColumnWidth(0,116);
-    ui->tableWidget->setColumnWidth(1,116);
-    ui->tableWidget->setColumnWidth(2,116);
+    ui->tableWidget->setColumnWidth(0,113);
+    ui->tableWidget->setColumnWidth(1,113);
+    ui->tableWidget->setColumnWidth(2,113);
     ui->tableWidget->setColumnWidth(3,30);
-    ui->tableWidget->setColumnWidth(4,50);
-    ui->tableWidget->setColumnWidth(5,50);
+    ui->tableWidget->setColumnWidth(4,53);
+    ui->tableWidget->setColumnWidth(5,53);
 
     ui->treeWidget->setGeometry(treeWidgetLeftMargin, treeWidgetTopMargin, treeWidgetWidth, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
     ui->tableWidget->setGeometry(tableWidgetLeftMargin+ui->treeWidget->width()+tableWidgetRightMargin, tableWidgetTopMargin, MainWindow::width()-ui->treeWidget->width()-15, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
@@ -295,13 +312,33 @@ void MainWindow::closeEvent(QCloseEvent *ev)
 {
     Q_UNUSED(ev);
     qDebug()<<"closeEvent";
+
+    if(t==true) {
+         QApplication::quit();
+    }
+    else {
+        QMessageBox msg;
+        msg.setWindowTitle("Warning");
+        msg.setText("Desea guardar cambios");
+        msg.setStandardButtons(QMessageBox::Yes);
+        msg.addButton(QMessageBox::No);
+        msg.setDefaultButton(QMessageBox::Yes);
+        if(msg.exec() == QMessageBox::Yes){
+          // do something
+           saveSettings();
+           QApplication::quit();
+        }else {
+          // do something else
+            QApplication::quit();
+        }
+    }
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
 
-    qDebug()<<"Resize"<<ui->tableWidget->size();
+    //qDebug()<<"Resize"<<ui->tableWidget->size();
     //qDebug()<<"ResizeWidth"<<MainWindow::width();
     //qDebug()<<"ResizeHeight"<<MainWindow::height();
 
@@ -325,12 +362,12 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
     if(mainWidht<617 || mainHeight<188) {
         MainWindow::setGeometry(308,187,616,372);
-        ui->tableWidget->setColumnWidth(0,116);
-        ui->tableWidget->setColumnWidth(1,116);
-        ui->tableWidget->setColumnWidth(2,116);
+        ui->tableWidget->setColumnWidth(0,113);
+        ui->tableWidget->setColumnWidth(1,113);
+        ui->tableWidget->setColumnWidth(2,113);
         ui->tableWidget->setColumnWidth(3,30);
-        ui->tableWidget->setColumnWidth(4,50);
-        ui->tableWidget->setColumnWidth(5,50);
+        ui->tableWidget->setColumnWidth(4,53);
+        ui->tableWidget->setColumnWidth(5,53);
     }
     else {
         ui->treeWidget->setGeometry(treeWidgetLeftMargin, treeWidgetTopMargin, treeWidgetWidth, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
@@ -338,7 +375,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         ui->tableWidget->setColumnWidth(0,tableWidth);
         ui->tableWidget->setColumnWidth(1,tableWidth);
         ui->tableWidget->setColumnWidth(2,tableWidth);
-        //ui->tableWidget->setColumnWidth(3,30);
+        ui->tableWidget->setColumnWidth(3,30);
         ui->tableWidget->setColumnWidth(4,70);
         ui->tableWidget->setColumnWidth(5,70);
     }
@@ -362,12 +399,13 @@ void MainWindow::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
 void MainWindow::on_tableWidget_cellChanged(int row, int column)
 {
     qDebug()<<"cell changed";
+    t = false;
     //QRegExp rx("(\\ |\\,|\\.|\\:|\\t)"); //RegEx for ' ' or ',' or '.' or ':' or '\t'
     QRegExp rx(",");
     QString stringToSplit = programData[m_cProgramIndex][row+1];
     QStringList query = stringToSplit.split(rx);
     query[column] = ui->tableWidget->item(row, column)->text();
-    //qDebug()<<query;
+    //qDebug()<<"query1"<<query;
     programData[m_cProgramIndex][row+1] = query[0]+","+query[1]+","+query[2]+","+query[3]+","+query[4]+","+query[5];
 }
 
@@ -400,17 +438,27 @@ void MainWindow::saveTable()
     QString itabtext[6];
 
     //qDebug()<<programData[m_cProgramIndex].count()-1;
+    //int row = ui->tableWidget->currentRow();
+    //QTableWidgetItem *item = new QTableWidgetItem("-");
 
     for (int j = 0;j<programData[m_cProgramIndex].count()-1;++j) {
         for (int i = 0;i<6;++i) {
             QTableWidgetItem *itab = ui->tableWidget->item(j,i);
             //ui->tableWidget->
             itabtext[i] = itab->text();
-            //qDebug()<<itabtext[i];
+            //qDebug()<<"itabtext"<<itabtext[i];
         }
         QString text={itabtext[0]+","+itabtext[1]+","+itabtext[2]+","+itabtext[3]+","+itabtext[4]+","+itabtext[5]};
-        qDebug()<<"text";
-        qDebug()<<text;
+
+        /*if (text[0]=="Pausa")
+        {
+            QColor colorLive(Qt::lightGray);
+            item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+            ui->tableWidget->setItem(row,1,item);
+            ui->tableWidget->item(row,1)->setBackgroundColor(colorLive);
+        }*/
+
+        qDebug()<<"text:"<<text;
 
         qDebug()<<m_cProgramIndex;
 
@@ -421,33 +469,37 @@ void MainWindow::saveTable()
     }
 }
 
-//[{"Type": "Begin"}, {"Type": "Pause", "Time": "25000"}, {"Type": "Charge", "Time": "30000", "Current": "30.0"}, {"Type": "Charge", "Time": "1800000", "Current": "27.4", "Maxtemp": "31.0", "Mintemp": "20.0"}, {"Type": "Charge", "Time": "1200000", "Current": "18.6", "Maxtemp": "31.0", "Mintemp": "20.5"}, {"Type": "Pause", "Time": "180000"}, {"Type": "Charge", "Time": "1200000", "Current": "9.0"}, {"Type": "Pause", "Time": "60000"}, {"Type": "Charge", "Time": "900000", "Current": "12.4", "Maxtemp": "29.0", "Mintemp": "20.1"}, {"Type": "Charge", "Time": "1200000", "Current": "8.2", "Maxtemp": "30.3", "Mintemp": "20.0"}, {"Type": "Charge", "Time": "1500000", "Current": "25.6", "Maxtemp": "30.3", "Mintemp": "20.0"}, {"Type": "Pause", "Time": "180000"}, {"Type": "Charge", "Time": "1200000", "Current": "17.6"}, {"Type": "End"}]
-
 
 void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
 {
     qDebug()<<"itemClicked";
 
-    QTableWidgetItem *itab = ui->tableWidget->item(programData[m_cProgramIndex].count()-2,0);
+    int row = ui->tableWidget->currentRow();
+    QTableWidgetItem *itab = ui->tableWidget->item(row,0);
+
     //itab->setTextAlignment(Qt::AlignCenter);
 
     QString itabtext = itab->text();
-    qDebug()<<"textColumn0"<<itabtext;
+    //qDebug()<<"textColumn0:"<<itabtext;
 
     item = new QTableWidgetItem("-");
 
     if(itabtext == "Carga"){
         //QColor colorLive(Qt::white);  //flag
         item->setFlags(item->flags() | Qt::ItemIsEditable);
-        //ui->tableWidget->setItem(programData[m_cProgramIndex].count()-2,1,item);
-        //ui->tableWidget->item(programData[m_cProgramIndex].count()-2,1)->setBackgroundColor(colorLive);
+        //ui->tableWidget->setItem(row,1,item);
+        //ui->tableWidget->item(row,1)->setBackgroundColor(colorLive);
 
     }
     if(itabtext == "Pausa"){
         QColor colorLive(Qt::lightGray);
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-        ui->tableWidget->setItem(programData[m_cProgramIndex].count()-2,1,item);
-        ui->tableWidget->item(programData[m_cProgramIndex].count()-2,1)->setBackgroundColor(colorLive);
+        ui->tableWidget->setItem(row,1,item);
+        ui->tableWidget->setItem(row,4,item);
+        ui->tableWidget->setItem(row,5,item);
+        ui->tableWidget->item(row,1)->setBackgroundColor(colorLive);
+        ui->tableWidget->item(row,4)->setBackgroundColor(colorLive);
+        ui->tableWidget->item(row,5)->setBackgroundColor(colorLive);
     }
 }
 

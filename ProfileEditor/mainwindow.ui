@@ -177,6 +177,9 @@
    <property name="text">
     <string>Agregar Renglon</string>
    </property>
+   <property name="toolTip">
+    <string>Agregar Renglon</string>
+   </property>
   </action>
   <action name="actionBorrar_Renglon">
    <property name="icon">

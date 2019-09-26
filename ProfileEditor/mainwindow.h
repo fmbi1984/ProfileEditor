@@ -66,6 +66,7 @@ private slots:
 
     void on_actionBorrar_Renglon_triggered();
 
+
 private:
     Ui::MainWindow *ui;
 
@@ -78,6 +79,7 @@ private:
     QString m_sSettingsFile;
     QList <QStringList> programData;
     int m_cProgramIndex=0;
+    bool t = true;
 
 };
 
