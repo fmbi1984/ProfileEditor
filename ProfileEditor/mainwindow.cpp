@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::WindowMaximizeButtonHint);
 
-    setWindowTitle("Profile Editor");
+    setWindowTitle("Editor de Programa");
 
     ui->tableWidget->setColumnCount(6);
 
@@ -41,8 +41,11 @@ void MainWindow::on_actionNuevo_triggered()
 
     QTreeWidgetItem * topLevel = new QTreeWidgetItem();
 
+    //qDebug()<<"x"<<programData[m_cProgramIndex][0];
+
     this->m_cProgramIndex = ui->treeWidget->topLevelItemCount()+1;
     QString idx = QString::number(m_cProgramIndex);
+
     topLevel->setText(0,idx+"-SGL");
 
     tree->addTopLevelItem(topLevel);
@@ -64,7 +67,6 @@ void MainWindow::on_actionGuardar_triggered()
     saveSettings();
     jsonTable();
     t = true;
-    qDebug()<<t;
 }
 
 void MainWindow::on_actionRenombrar_triggered()
@@ -76,12 +78,18 @@ void MainWindow::on_actionRenombrar_triggered()
 void MainWindow::on_actionBorrar_triggered()
 {
      qDebug()<<"Borrar";
-     qDebug()<<programData.count();
-     programData.removeAt(this->m_cProgramIndex);
-     qDebug()<<programData.count();
+     //qDebug()<<"programDatacount"<<programData.count();
+     //qDebug()<<"mc_pro"<<m_cProgramIndex;
+     //programData.removeAt(this->m_cProgramIndex);
+     //programData.
+     QString tmp = programData[m_cProgramIndex][0];
+     //qDebug()<<"tmp"<<tmp;
+     programData.removeOne(programData[this->m_cProgramIndex]);
+
      ui->tableWidget->clearContents();
+     ui->tableWidget->setRowCount(0);
      ui->treeWidget->takeTopLevelItem(this->m_cProgramIndex);
-     qDebug()<<"taketop"<<ui->treeWidget->takeTopLevelItem(this->m_cProgramIndex);
+     file.remove(tmp+".txt");
      //populateTable(this->m_cProgramIndex);
 }
 
@@ -100,7 +108,7 @@ void MainWindow::on_actionSalir_triggered()
    else {
        QMessageBox msg;
        msg.setWindowTitle("Warning");
-       msg.setText("Desea guardar cambios");
+       msg.setText("¿Quieres guardar los cambios realizados en el archivo?");
        msg.setStandardButtons(QMessageBox::Yes);
        msg.addButton(QMessageBox::No);
        msg.setDefaultButton(QMessageBox::Yes);
@@ -185,10 +193,10 @@ void MainWindow::jsonTable()
         QString name = programData[j][0];
         //QString idx = QString::number(j);
 
-        QString prb = name+".txt"; //.txt .json
-        QFile file(prb);
 
-        //QFile file(prb);
+        //QString prb = name+".txt"; //.txt .json
+        file.setFileName(name+".txt"); //.txt .json
+
 
         if ( file.open(QIODevice::ReadWrite) )
         {
@@ -319,7 +327,7 @@ void MainWindow::closeEvent(QCloseEvent *ev)
     else {
         QMessageBox msg;
         msg.setWindowTitle("Warning");
-        msg.setText("Desea guardar cambios");
+        msg.setText("¿Quieres guardar los cambios realizados en el archivo?");
         msg.setStandardButtons(QMessageBox::Yes);
         msg.addButton(QMessageBox::No);
         msg.setDefaultButton(QMessageBox::Yes);

@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QTreeWidget>
 #include <QHeaderView>
+#include <QFile>
 #include "comboboxdelegate.h"
 #include "comboboxtime.h"
 #include "timedelegate.h"
@@ -75,6 +76,8 @@ private:
 
     void resizeEvent(QResizeEvent* resizeEvent);
     void keyPressEvent(QKeyEvent *event);
+
+    QFile file;
 
     QString m_sSettingsFile;
     QList <QStringList> programData;
