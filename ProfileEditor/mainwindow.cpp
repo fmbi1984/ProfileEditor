@@ -283,6 +283,8 @@ void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
     } catch(...) {
         //ui->tableWidget->clear();
     }
+
+
 }
 
 void MainWindow::showEvent(QShowEvent *ev)
@@ -514,7 +516,7 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
         ui->tableWidget->setItem(row,4,item);
         ui->tableWidget->setItem(row,5,item);
     }
-
+/*
     for (int j=0; j<=5; j++) {
         if(ui->tableWidget->item(row, j)->text() == "-")
         {
@@ -523,6 +525,19 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
         else
         {
             ui->tableWidget->item(row,j)->setBackground(Qt::white);
+        }
+    }*/
+
+    for(int k=0; k<ui->tableWidget->rowCount(); k++) {
+        for (int j=0; j<=5; j++) {
+            if(ui->tableWidget->item(k, j)->text() == "-")
+            {
+                ui->tableWidget->item(k,j)->setBackground(Qt::lightGray);
+            }
+            else
+            {
+                ui->tableWidget->item(k,j)->setBackground(Qt::white);
+            }
         }
     }
 
