@@ -173,12 +173,16 @@ void MainWindow::populateTable(int pgmIdx)
         //qDebug()<<"query0"<<query;
         //qDebug()<<programData[pgmIdx][nstep+1];
 
-        ui->tableWidget->setItem(nstep, 0, new QTableWidgetItem(query[0]));
-        ui->tableWidget->setItem(nstep, 1, new QTableWidgetItem(query[1]));
-        ui->tableWidget->setItem(nstep, 2, new QTableWidgetItem(query[2]));
-        ui->tableWidget->setItem(nstep, 3, new QTableWidgetItem(query[3]));
-        ui->tableWidget->setItem(nstep, 4, new QTableWidgetItem(query[4]));
-        ui->tableWidget->setItem(nstep, 5, new QTableWidgetItem(query[5]));
+        for(int j=0; j<=5; j++){
+            ui->tableWidget->setItem(nstep, j, new QTableWidgetItem(query[j]));
+            if(query[j]=="-") {
+                ui->tableWidget->item(nstep,j)->setBackground(Qt::lightGray);
+            }
+            else
+            {
+               ui->tableWidget->item(nstep,j)->setBackground(Qt::white);
+            }
+        }
     }
 }
 
@@ -402,6 +406,8 @@ void MainWindow::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
     QString d = item->text(column);
     qDebug()<<d;
     programData[m_cProgramIndex][0] = d;
+
+
 }
 
 void MainWindow::on_tableWidget_cellChanged(int row, int column)
@@ -415,6 +421,8 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
     query[column] = ui->tableWidget->item(row, column)->text();
     //qDebug()<<"query1"<<query;
     programData[m_cProgramIndex][row+1] = query[0]+","+query[1]+","+query[2]+","+query[3]+","+query[4]+","+query[5];
+
+
 }
 
 
@@ -499,16 +507,26 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
         //ui->tableWidget->item(row,1)->setBackgroundColor(colorLive);
 
     }
+
     if(itabtext == "Pausa"){
-        QColor colorLive(Qt::lightGray);
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
         ui->tableWidget->setItem(row,1,item);
         ui->tableWidget->setItem(row,4,item);
         ui->tableWidget->setItem(row,5,item);
-        ui->tableWidget->item(row,1)->setBackgroundColor(colorLive);
-        ui->tableWidget->item(row,4)->setBackgroundColor(colorLive);
-        ui->tableWidget->item(row,5)->setBackgroundColor(colorLive);
     }
+
+    for (int j=0; j<=5; j++) {
+        if(ui->tableWidget->item(row, j)->text() == "-")
+        {
+            ui->tableWidget->item(row,j)->setBackground(Qt::lightGray);
+        }
+        else
+        {
+            ui->tableWidget->item(row,j)->setBackground(Qt::white);
+        }
+    }
+
+
 }
 
 void MainWindow::on_actionAgregar_Renglon_triggered()
@@ -534,15 +552,15 @@ void MainWindow::on_actionBorrar_Renglon_triggered()
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     Q_UNUSED(event);
-
-
-    /*switch(event->key()) {
+    /*
+    switch(event->key()) {
     case Qt::Key_Escape: // si se pulsa ESCAPE se cierra la ventana
         close();
         break;
     default: // imprimir tecla pulsada
         qDebug() << "Código: " << event->key() << "\nCarácter: " << event->text();
         QMainWindow::keyPressEvent(event);
-    }*/
+    }
+    */
 }
 
