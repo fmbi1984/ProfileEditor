@@ -72,7 +72,9 @@ void MainWindow::on_actionGuardar_triggered()
 void MainWindow::on_actionRenombrar_triggered()
 {
      qDebug()<<"Renombrar";
-     loadSettings();
+     auto item = ui->treeWidget->currentItem();
+     item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+     ui->treeWidget->editItem(item,0);
 }
 
 void MainWindow::on_actionBorrar_triggered()
