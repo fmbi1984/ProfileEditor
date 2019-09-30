@@ -63,10 +63,9 @@
    <addaction name="actionGuardar"/>
    <addaction name="actionRenombrar"/>
    <addaction name="actionBorrar"/>
-   <addaction name="actionCancelar"/>
-   <addaction name="actionSalir"/>
    <addaction name="actionAgregar_Renglon"/>
    <addaction name="actionBorrar_Renglon"/>
+   <addaction name="actionSalir"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QMenuBar" name="menuBar">
@@ -143,18 +142,6 @@
    </property>
    <property name="toolTip">
     <string>Borrar</string>
-   </property>
-  </action>
-  <action name="actionCancelar">
-   <property name="icon">
-    <iconset resource="resourse.qrc">
-     <normaloff>:/rec/image/cancelar.png</normaloff>:/rec/image/cancelar.png</iconset>
-   </property>
-   <property name="text">
-    <string>Cancelar</string>
-   </property>
-   <property name="toolTip">
-    <string>Cancelar</string>
    </property>
   </action>
   <action name="actionSalir">

@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::WindowMaximizeButtonHint);
+    setWindowFlags(Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::WindowMinimizeButtonHint);
 
     setWindowTitle("Editor de Programa");
 
@@ -36,7 +38,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionNuevo_triggered()
 {
     qDebug()<<"Nuevo";
-    t = false;
+
     QTreeWidget * tree = ui->treeWidget;
 
     QTreeWidgetItem * topLevel = new QTreeWidgetItem();
@@ -51,6 +53,7 @@ void MainWindow::on_actionNuevo_triggered()
     tree->addTopLevelItem(topLevel);
     programData.append({idx+"-SGL","-,-,-,-,-,-"});
 
+
     /*for(int i=0; i<1; i++)
     {
         QTreeWidgetItem * item = new QTreeWidgetItem();
@@ -63,66 +66,51 @@ void MainWindow::on_actionNuevo_triggered()
 void MainWindow::on_actionGuardar_triggered()
 {
     qDebug()<<"Guardar";
-    saveTable();
-    saveSettings();
-    jsonTable();
-    t = true;
+    if(ui->treeWidget->currentItem() != 0) {
+        saveTable();
+        saveSettings();
+        jsonTable();
+        t=false;
+    }
+    else {
+        QMessageBox msg;
+        msg.setText("No se puede guardar programa vacío o incompleto");
+        msg.setIcon(QMessageBox::Information);
+        msg.setStandardButtons(QMessageBox::Ok);
+        msg.exec();
+    }
 }
 
 void MainWindow::on_actionRenombrar_triggered()
 {
      qDebug()<<"Renombrar";
-     auto item = ui->treeWidget->currentItem();
-     item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-     ui->treeWidget->editItem(item,0);
+     if(ui->treeWidget->currentItem() != 0) {
+         auto item = ui->treeWidget->currentItem();
+         item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+         ui->treeWidget->editItem(item,0);
+     }
 }
 
 void MainWindow::on_actionBorrar_triggered()
 {
      qDebug()<<"Borrar";
-     //qDebug()<<"programDatacount"<<programData.count();
-     //qDebug()<<"mc_pro"<<m_cProgramIndex;
-     //programData.removeAt(this->m_cProgramIndex);
-     //programData.
-     QString tmp = programData[m_cProgramIndex][0];
-     //qDebug()<<"tmp"<<tmp;
-     programData.removeOne(programData[this->m_cProgramIndex]);
+     if(ui->treeWidget->currentItem() != 0) {
+         QString tmp = programData[m_cProgramIndex][0];
+         //qDebug()<<"tmp"<<tmp;
+         programData.removeOne(programData[this->m_cProgramIndex]);
 
-     ui->tableWidget->clearContents();
-     ui->tableWidget->setRowCount(0);
-     ui->treeWidget->takeTopLevelItem(this->m_cProgramIndex);
-     file.remove(tmp+".txt");
-     //populateTable(this->m_cProgramIndex);
-}
-
-void MainWindow::on_actionCancelar_triggered()
-{
-    qDebug()<<"Cancelar";
-    loadSettings();
-    populateTable(this->m_cProgramIndex);
+         ui->tableWidget->clearContents();
+         ui->tableWidget->setRowCount(0);
+         ui->treeWidget->takeTopLevelItem(this->m_cProgramIndex);
+         file.remove(tmp+".txt");
+         //populateTable(this->m_cProgramIndex);
+     }
 }
 
 void MainWindow::on_actionSalir_triggered()
 {
-   if(t == true) {
-     QApplication::quit();
-   }
-   else {
-       QMessageBox msg;
-       msg.setWindowTitle("Warning");
-       msg.setText("¿Quieres guardar los cambios realizados en el archivo?");
-       msg.setStandardButtons(QMessageBox::Yes);
-       msg.addButton(QMessageBox::No);
-       msg.setDefaultButton(QMessageBox::Yes);
-       if(msg.exec() == QMessageBox::Yes){
-         // do something
-          saveSettings();
-          QApplication::quit();
-       }else {
-         // do something else
-           QApplication::quit();
-       }
-   }
+   QCloseEvent *cl;
+   closeEvent(cl);
 }
 
 void MainWindow::saveSettings()
@@ -255,7 +243,6 @@ void MainWindow::jsonTable()
                     //qDebug()<<stepCount[i];
                 }
 
-
                 //for (int j=0;j<list1.size();++j) {
                    QString stepTotal = {stepCount[i]+","};
                     //QStringList stepTotal = {"[{Type:Begin},"+stepCount[0]+",{Type:End}]"};
@@ -268,7 +255,6 @@ void MainWindow::jsonTable()
              qDebug()<<"{Type:End}]";
              stream<<"{Type:End}]";
         }
-
     }
 }
 void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
@@ -285,8 +271,6 @@ void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
     } catch(...) {
         //ui->tableWidget->clear();
     }
-
-
 }
 
 void MainWindow::showEvent(QShowEvent *ev)
@@ -329,22 +313,23 @@ void MainWindow::closeEvent(QCloseEvent *ev)
     Q_UNUSED(ev);
     qDebug()<<"closeEvent";
 
-    if(t==true) {
+    if(!t) {
          QApplication::quit();
     }
     else {
         QMessageBox msg;
-        msg.setWindowTitle("Warning");
-        msg.setText("¿Quieres guardar los cambios realizados en el archivo?");
+        msg.setText("¿Deseas guardar los cambios realizados en el archivo?");
+        msg.setWindowFlags(Qt::WindowCloseButtonHint);
+        msg.setIcon(QMessageBox::Question);
         msg.setStandardButtons(QMessageBox::Yes);
         msg.addButton(QMessageBox::No);
         msg.setDefaultButton(QMessageBox::Yes);
+
         if(msg.exec() == QMessageBox::Yes){
-          // do something
            saveSettings();
            QApplication::quit();
-        }else {
-          // do something else
+        }
+        else{
             QApplication::quit();
         }
     }
@@ -410,14 +395,12 @@ void MainWindow::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
     QString d = item->text(column);
     qDebug()<<d;
     programData[m_cProgramIndex][0] = d;
-
-
 }
 
 void MainWindow::on_tableWidget_cellChanged(int row, int column)
 {
     qDebug()<<"cell changed";
-    t = false;
+    t = true;
     //QRegExp rx("(\\ |\\,|\\.|\\:|\\t)"); //RegEx for ' ' or ',' or '.' or ':' or '\t'
     QRegExp rx(",");
     QString stringToSplit = programData[m_cProgramIndex][row+1];
@@ -425,14 +408,12 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
     query[column] = ui->tableWidget->item(row, column)->text();
     //qDebug()<<"query1"<<query;
     programData[m_cProgramIndex][row+1] = query[0]+","+query[1]+","+query[2]+","+query[3]+","+query[4]+","+query[5];
-
-
 }
 
 
 void MainWindow::on_tableWidget_itemChanged(QTableWidgetItem *item)
 {
-    qDebug()<<"tableWidget item";
+    qDebug()<<"tableWidget delegate";
     ComboBoxDelegate* cbid = new ComboBoxDelegate();
     ui->tableWidget->setItemDelegateForColumn(0,cbid);
 
@@ -457,7 +438,9 @@ void MainWindow::saveTable()
     qDebug()<<"saveTable";
     QString itabtext[6];
 
-    //qDebug()<<programData[m_cProgramIndex].count()-1;
+    qDebug()<<m_cProgramIndex;
+    //qDebug()<<programData[m_cProgramIndex];
+
     //int row = ui->tableWidget->currentRow();
     //QTableWidgetItem *item = new QTableWidgetItem("-");
 
@@ -483,8 +466,6 @@ void MainWindow::saveTable()
         qDebug()<<m_cProgramIndex;
 
         programData[m_cProgramIndex][j+1] = text;
-
-        //programData.append({"124-SGL",text});
         qDebug()<<programData[m_cProgramIndex][j+1];
     }
 }
@@ -495,6 +476,7 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
     qDebug()<<"itemClicked";
 
     int row = ui->tableWidget->currentRow();
+    int column = ui->tableWidget->currentColumn();
     QTableWidgetItem *itab = ui->tableWidget->item(row,0);
 
     //itab->setTextAlignment(Qt::AlignCenter);
@@ -509,14 +491,15 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         //ui->tableWidget->setItem(row,1,item);
         //ui->tableWidget->item(row,1)->setBackgroundColor(colorLive);
-
     }
 
     if(itabtext == "Pausa"){
+        qDebug()<<"no editable";
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-        ui->tableWidget->setItem(row,1,item);
-        ui->tableWidget->setItem(row,4,item);
-        ui->tableWidget->setItem(row,5,item);
+
+        if(column==1||column==4||column==5) {
+            ui->tableWidget->setItem(row,column,item);
+        }
     }
 /*
     for (int j=0; j<=5; j++) {
@@ -542,28 +525,27 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
             }
         }
     }
-
-
 }
 
 void MainWindow::on_actionAgregar_Renglon_triggered()
 {
-    qDebug()<<"Agregar";
-    programData[this->m_cProgramIndex].append("-,-,-,-,-,-");
-    ui->tableWidget->setRowCount(programData[0].count()-1);
-
-    qDebug()<<"m_cProgram"<<m_cProgramIndex;
-
-    populateTable(this->m_cProgramIndex);
+    qDebug()<<"AgregarR";
+    if(ui->treeWidget->currentItem()!=0) {
+        programData[this->m_cProgramIndex].append("-,-,-,-,-,-");
+        ui->tableWidget->setRowCount(programData[0].count()-1);
+        qDebug()<<"m_cProgram"<<m_cProgramIndex;
+        populateTable(this->m_cProgramIndex);
+    }
 }
 
 void MainWindow::on_actionBorrar_Renglon_triggered()
 {
-    qDebug()<<"Eliminar";
-
-    programData[this->m_cProgramIndex].removeLast();
-    ui->tableWidget->setRowCount(programData[0].count()-1);
-    populateTable(this->m_cProgramIndex);
+    qDebug()<<"EliminarR";
+    if(ui->treeWidget->currentItem()!=0) {
+        programData[this->m_cProgramIndex].removeLast();
+        ui->tableWidget->setRowCount(programData[0].count()-1);
+        populateTable(this->m_cProgramIndex);
+    }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

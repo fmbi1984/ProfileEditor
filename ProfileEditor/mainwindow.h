@@ -39,7 +39,6 @@ private slots:
     void on_actionGuardar_triggered();
     void on_actionRenombrar_triggered();
     void on_actionBorrar_triggered();
-    void on_actionCancelar_triggered();
     void on_actionSalir_triggered();
 
     void saveSettings();
@@ -82,8 +81,7 @@ private:
     QString m_sSettingsFile;
     QList <QStringList> programData;
     int m_cProgramIndex=0;
-    bool t = true;
-
+    bool t = false;
 };
 
 #endif // MAINWINDOW_H
