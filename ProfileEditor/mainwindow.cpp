@@ -9,10 +9,13 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::WindowMaximizeButtonHint);
-    setWindowFlags(Qt::WindowCloseButtonHint);
-    setWindowFlags(Qt::WindowMinimizeButtonHint);
+    //setWindowFlags(Qt::WindowCloseButtonHint);
+    //setWindowFlags(Qt::WindowMinimizeButtonHint);
 
     setWindowTitle("Editor de Programa");
+    setWindowIcon(QIcon("/Users/cex/Documents/github/ProfileEditorApp/ProfileEditor/editorprograma1.png"));
+    //setWindowIcon(QIcon("/opt/Ditsa/ProfileEditor/editorprograma1.png"));
+
 
     ui->tableWidget->setColumnCount(6);
 
@@ -66,18 +69,22 @@ void MainWindow::on_actionNuevo_triggered()
 void MainWindow::on_actionGuardar_triggered()
 {
     qDebug()<<"Guardar";
+    qDebug()<<ui->treeWidget->currentItem();
+
     if(ui->treeWidget->currentItem() != 0) {
         saveTable();
-        saveSettings();
-        jsonTable();
-        t=false;
+
+        if(!save) {
+            saveSettings();
+            jsonTable();
+            t=false;
+        }
+        else {
+            mssage_Information();
+        }
     }
     else {
-        QMessageBox msg;
-        msg.setText("No se puede guardar programa vacío o incompleto");
-        msg.setIcon(QMessageBox::Information);
-        msg.setStandardButtons(QMessageBox::Ok);
-        msg.exec();
+      mssage_Information();
     }
 }
 
@@ -111,6 +118,15 @@ void MainWindow::on_actionSalir_triggered()
 {
    QCloseEvent *cl;
    closeEvent(cl);
+}
+
+void MainWindow::mssage_Information()
+{
+    QMessageBox msg;
+    msg.setText("No se puede guardar programa vacío o incompleto");
+    msg.setIcon(QMessageBox::Information);
+    msg.setStandardButtons(QMessageBox::Ok);
+    msg.exec();
 }
 
 void MainWindow::saveSettings()
@@ -151,6 +167,7 @@ void MainWindow::populateTree()
 void MainWindow::populateTable(int pgmIdx)
 {
     qDebug()<<"populateTable";
+    qDebug()<<programData[pgmIdx].count()-1;
 
     ui->tableWidget->setRowCount(programData[pgmIdx].count()-1);
 
@@ -384,14 +401,14 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
 void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-    qDebug()<<"edit item";
+    qDebug()<<"tree edit item";
     item->setFlags(item->flags() | Qt::ItemIsEditable);
     ui->treeWidget->editItem(item, column);
 }
 
 void MainWindow::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
 {
-    qDebug()<<"item changed";
+    qDebug()<<"tree item changed";
     QString d = item->text(column);
     qDebug()<<d;
     programData[m_cProgramIndex][0] = d;
@@ -437,21 +454,51 @@ void MainWindow::saveTable()
 {
     qDebug()<<"saveTable";
     QString itabtext[6];
-
+    QString text;
     qDebug()<<m_cProgramIndex;
     //qDebug()<<programData[m_cProgramIndex];
 
     //int row = ui->tableWidget->currentRow();
     //QTableWidgetItem *item = new QTableWidgetItem("-");
 
+
     for (int j = 0;j<programData[m_cProgramIndex].count()-1;++j) {
         for (int i = 0;i<6;++i) {
             QTableWidgetItem *itab = ui->tableWidget->item(j,i);
             //ui->tableWidget->
             itabtext[i] = itab->text();
-            //qDebug()<<"itabtext"<<itabtext[i];
+            qDebug()<<"itabtext"<<itabtext[i];
         }
-        QString text={itabtext[0]+","+itabtext[1]+","+itabtext[2]+","+itabtext[3]+","+itabtext[4]+","+itabtext[5]};
+        if(itabtext[0]=="Carga") {
+            if(itabtext[1]=="-"||itabtext[2]=="-"|| itabtext[3]=="-") {
+                qDebug()<<"no se puede guardar";
+                save = true;
+                break;
+            }
+            else {
+                qDebug()<<"Si, se guardaC";
+                save = false;
+                text={itabtext[0]+","+itabtext[1]+","+itabtext[2]+","+itabtext[3]+","+itabtext[4]+","+itabtext[5]};
+                programData[m_cProgramIndex][j+1] = text;
+                qDebug()<<programData[m_cProgramIndex][j+1];
+            }
+        }
+        else {
+            if(itabtext[2]=="-"||itabtext[3]=="-") {
+                 qDebug()<<"no se puede guardar";
+                 save = true;
+                 break;
+            }
+            else {
+                 qDebug()<<"si, se guardaP";
+                 save = false;
+                 text={itabtext[0]+","+itabtext[1]+","+itabtext[2]+","+itabtext[3]+","+itabtext[4]+","+itabtext[5]};
+                 programData[m_cProgramIndex][j+1] = text;
+                 qDebug()<<programData[m_cProgramIndex][j+1];
+            }
+        }
+
+        //QString text={itabtext[0]+","+itabtext[1]+","+itabtext[2]+","+itabtext[3]+","+itabtext[4]+","+itabtext[5]};
 
         /*if (text[0]=="Pausa")
         {
@@ -461,12 +508,11 @@ void MainWindow::saveTable()
             ui->tableWidget->item(row,1)->setBackgroundColor(colorLive);
         }*/
 
-        qDebug()<<"text:"<<text;
+       // qDebug()<<"text:"<<text;
+       // qDebug()<<m_cProgramIndex;
 
-        qDebug()<<m_cProgramIndex;
-
-        programData[m_cProgramIndex][j+1] = text;
-        qDebug()<<programData[m_cProgramIndex][j+1];
+       // programData[m_cProgramIndex][j+1] = text;
+       // qDebug()<<programData[m_cProgramIndex][j+1];
     }
 }
 
@@ -494,7 +540,7 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
     }
 
     if(itabtext == "Pausa"){
-        qDebug()<<"no editable";
+        //qDebug()<<"no editable";
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
 
         if(column==1||column==4||column==5) {

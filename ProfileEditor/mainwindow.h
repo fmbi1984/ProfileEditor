@@ -14,12 +14,14 @@
 #include <QTreeWidget>
 #include <QHeaderView>
 #include <QFile>
+#include <QWidget>
+#include <QIcon>
+
 #include "comboboxdelegate.h"
 #include "comboboxtime.h"
 #include "timedelegate.h"
 #include "spinboxdelegate.h"
 #include "spinboxtemp.h"
-#include <QWidget>
 
 
 namespace Ui {
@@ -40,6 +42,8 @@ private slots:
     void on_actionRenombrar_triggered();
     void on_actionBorrar_triggered();
     void on_actionSalir_triggered();
+
+    void mssage_Information();
 
     void saveSettings();
     void loadSettings();
@@ -82,6 +86,7 @@ private:
     QList <QStringList> programData;
     int m_cProgramIndex=0;
     bool t = false;
+    bool save = false;
 };
 
 #endif // MAINWINDOW_H

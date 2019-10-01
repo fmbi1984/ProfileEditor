@@ -162,10 +162,10 @@
      <normaloff>:/rec/image/agregarRenglon.png</normaloff>:/rec/image/agregarRenglon.png</iconset>
    </property>
    <property name="text">
-    <string>Agregar Renglon</string>
+    <string>Agregar Renglón</string>
    </property>
    <property name="toolTip">
-    <string>Agregar Renglon</string>
+    <string>Agregar Renglón</string>
    </property>
   </action>
   <action name="actionBorrar_Renglon">
@@ -174,7 +174,7 @@
      <normaloff>:/rec/image/borrarRenglon.png</normaloff>:/rec/image/borrarRenglon.png</iconset>
    </property>
    <property name="text">
-    <string>Borrar Renglon</string>
+    <string>Borrar Renglón</string>
    </property>
   </action>
  </widget>
