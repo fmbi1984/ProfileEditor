@@ -7,20 +7,17 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
-    setWindowFlags(Qt::WindowMaximizeButtonHint);
+    ui->setupUi(this); 
+    //setWindowFlags(Qt::WindowMaximizeButtonHint);
     //setWindowFlags(Qt::WindowCloseButtonHint);
     //setWindowFlags(Qt::WindowMinimizeButtonHint);
 
     setWindowTitle("Editor de Programa");
-    setWindowIcon(QIcon("/Users/cex/Documents/github/ProfileEditorApp/ProfileEditor/editorprograma1.png"));
-    //setWindowIcon(QIcon("/opt/Ditsa/ProfileEditor/editorprograma1.png"));
+    //setWindowIcon(QIcon("/Users/cex/Documents/github/ProfileEditorApp/ProfileEditor/editorprograma1.png"));
+    setWindowIcon(QIcon("/opt/Ditsa/ProfileEditor/editorprograma1.png"));
 
 
     ui->tableWidget->setColumnCount(6);
-
-    //ui->tableWidget->setRowCount(1);
-    //ui->tableWidget->setSpan(0,3,1,2);
 
     QStringList tableTitles({"Modo Operación","Valor Nominal","Termino","","",""});
     ui->tableWidget->setHorizontalHeaderLabels(tableTitles);
@@ -321,9 +318,29 @@ void MainWindow::showEvent(QShowEvent *ev)
     ui->treeWidget->setGeometry(treeWidgetLeftMargin, treeWidgetTopMargin, treeWidgetWidth, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
     ui->tableWidget->setGeometry(tableWidgetLeftMargin+ui->treeWidget->width()+tableWidgetRightMargin, tableWidgetTopMargin, MainWindow::width()-ui->treeWidget->width()-15, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
 
-    loadSettings();
-    populateTree();
+
+    if(!wmin) {
+        loadSettings();
+        populateTree();
+        wmin = true;
+    }
 }
+
+/*
+void MainWindow::changeEvent(QEvent *ev)
+{
+    qDebug()<<"changeEvent";
+
+    if( ev->type() == QEvent::WindowStateChange)
+    {
+        //qDebug()<<windowState();
+
+        if(this->windowState() &  Qt::WindowFullScreen)
+        {
+            qDebug()<<"Se maximiza";
+        }
+    }
+}*/
 
 void MainWindow::closeEvent(QCloseEvent *ev)
 {
@@ -362,7 +379,6 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
     int mainWidht = MainWindow::width();
     int mainHeight = MainWindow::height();
-    int tableSize = ui->tableWidget->size().width();
 
     int treeWidgetLeftMargin = 5;
     int treeWidgetTopMargin = 5;
@@ -374,9 +390,6 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     int statusBarHeight = ui->statusBar->height();
     int mainToolbarHeight = ui->mainToolBar->height();
     int bothControlsHeight = statusBarHeight + mainToolbarHeight;
-    int tableWidth = (tableSize - 170) / 3;
-
-    //qDebug()<<"tableWidth"<<tableWidth;
 
     if(mainWidht<617 || mainHeight<188) {
         MainWindow::setGeometry(308,187,616,372);
@@ -390,6 +403,10 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     else {
         ui->treeWidget->setGeometry(treeWidgetLeftMargin, treeWidgetTopMargin, treeWidgetWidth, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
         ui->tableWidget->setGeometry(tableWidgetLeftMargin+ui->treeWidget->width()+tableWidgetRightMargin, tableWidgetTopMargin, MainWindow::width()-ui->treeWidget->width()-15, MainWindow::height()-(bothControlsHeight+tableWidgetLeftMargin+tableWidgetRightMargin));
+
+        int tableSize = ui->tableWidget->size().width();
+        int tableWidth = (tableSize - 170) / 3;
+
         ui->tableWidget->setColumnWidth(0,tableWidth);
         ui->tableWidget->setColumnWidth(1,tableWidth);
         ui->tableWidget->setColumnWidth(2,tableWidth);
@@ -465,10 +482,16 @@ void MainWindow::saveTable()
     for (int j = 0;j<programData[m_cProgramIndex].count()-1;++j) {
         for (int i = 0;i<6;++i) {
             QTableWidgetItem *itab = ui->tableWidget->item(j,i);
-            //ui->tableWidget->
             itabtext[i] = itab->text();
             qDebug()<<"itabtext"<<itabtext[i];
         }
+
+        if(itabtext[0]=="-") {
+            qDebug()<<"no se puede guardar";
+            save = true;
+            break;
+        }
+
         if(itabtext[0]=="Carga") {
             if(itabtext[1]=="-"||itabtext[2]=="-"|| itabtext[3]=="-") {
                 qDebug()<<"no se puede guardar";
@@ -480,7 +503,7 @@ void MainWindow::saveTable()
                 save = false;
                 text={itabtext[0]+","+itabtext[1]+","+itabtext[2]+","+itabtext[3]+","+itabtext[4]+","+itabtext[5]};
                 programData[m_cProgramIndex][j+1] = text;
-                qDebug()<<programData[m_cProgramIndex][j+1];
+                //qDebug()<<programData[m_cProgramIndex][j+1];
             }
         }
         else {
@@ -494,7 +517,7 @@ void MainWindow::saveTable()
                  save = false;
                  text={itabtext[0]+","+itabtext[1]+","+itabtext[2]+","+itabtext[3]+","+itabtext[4]+","+itabtext[5]};
                  programData[m_cProgramIndex][j+1] = text;
-                 qDebug()<<programData[m_cProgramIndex][j+1];
+                 //qDebug()<<programData[m_cProgramIndex][j+1];
             }
         }
 
@@ -524,9 +547,10 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
     int row = ui->tableWidget->currentRow();
     int column = ui->tableWidget->currentColumn();
     QTableWidgetItem *itab = ui->tableWidget->item(row,0);
+    //QTableWidgetItem *col = ui->tableWidget->item(row,4);
 
     //itab->setTextAlignment(Qt::AlignCenter);
-
+    //double coltext = col->
     QString itabtext = itab->text();
     //qDebug()<<"textColumn0:"<<itabtext;
 
@@ -571,6 +595,8 @@ void MainWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
             }
         }
     }
+
+    //if(coltext)
 }
 
 void MainWindow::on_actionAgregar_Renglon_triggered()

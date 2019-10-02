@@ -16,6 +16,7 @@
 #include <QFile>
 #include <QWidget>
 #include <QIcon>
+#include <QShowEvent>
 
 #include "comboboxdelegate.h"
 #include "comboboxtime.h"
@@ -76,6 +77,7 @@ private:
 
     void showEvent(QShowEvent *ev);
     void closeEvent(QCloseEvent *ev);
+    //void changeEvent(QEvent *ev);
 
     void resizeEvent(QResizeEvent* resizeEvent);
     void keyPressEvent(QKeyEvent *event);
@@ -87,6 +89,7 @@ private:
     int m_cProgramIndex=0;
     bool t = false;
     bool save = false;
+    bool wmin = false;
 };
 
 #endif // MAINWINDOW_H
